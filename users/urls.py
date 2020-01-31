@@ -14,8 +14,3 @@ urlpatterns = [
     url(r'^refresh/', refresh_jwt_token),
     url(r'^', include(router.urls)),
 ]
-
-"""
-deneme
-
-"""
