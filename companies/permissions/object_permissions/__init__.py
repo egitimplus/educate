@@ -1,0 +1,4 @@
+from .group import GroupObjectPermission
+from .classroom import ClassroomObjectPermission
+from .classroom_school import ClassroomSchoolObjectPermission
+from .school import SchoolObjectPermission

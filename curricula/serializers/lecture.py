@@ -1,0 +1,46 @@
+from rest_framework import serializers
+from curricula.models import LearningLectureStat, LearningLecture, LearningLectureVideo, LearningLectureLiveScribe, LearningLectureText, LearningLectureYoutube
+from .lecture_content import LearningLectureLiveScribeSerializer, LearningLectureVideoSerializer, LearningLectureTextSerializer, LearningLectureYoutubeSerializer
+from generic_relations.relations import GenericRelatedField
+from tests.models import Test
+
+
+class LearningLectureSerializer(serializers.ModelSerializer):
+
+    practice = serializers.SerializerMethodField()
+    stat = serializers.SerializerMethodField()
+
+    subject_id = serializers.IntegerField(required=True)
+    publisher_id = serializers.IntegerField(required=True)
+
+    content_object = GenericRelatedField({
+        LearningLectureVideo: LearningLectureVideoSerializer(),
+        LearningLectureLiveScribe: LearningLectureLiveScribeSerializer(),
+        LearningLectureText: LearningLectureTextSerializer(),
+        LearningLectureYoutube: LearningLectureYoutubeSerializer(),
+    })
+
+    class Meta:
+        model = LearningLecture
+        fields = ('id', 'name', 'summary', 'content', 'position', 'content_object', 'practice', 'subject_id',
+                  'publisher_id', 'created', 'updated', 'stat')
+        extra_kwargs = {
+            'slug': {'read_only': True, 'required': False}
+        }
+
+    def get_practice(self, lecture):
+        practice = {}
+        if lecture.practice_id:
+            queryset = Test.objects.prefetch_related('questions').filter(id=lecture.practice_id).first()
+
+            practice = {'name': queryset.name, 'question_count': queryset.questions.count()}
+
+        return practice
+
+    def get_stat(self, lecture):
+
+        request = self.context.get("request")
+        queryset = LearningLectureStat.objects.filter(lecture=lecture, user_id=request.user.id).first()
+        serializer = LearningLectureStatSerializer(queryset, many=False)
+
+        return serializer.data

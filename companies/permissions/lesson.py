@@ -1,0 +1,2 @@
+class LessonPermissionMixin(object):
+    pass
