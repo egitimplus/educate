@@ -21,8 +21,8 @@ class EduCategory(models.Model):
         db_table = 'educategories_edu_categories'
         default_permissions = ()
         permissions = (
-            ("view_educategory", "View edu category"),
-            ("list_educategory", "List edu category")
+            ("view_educategory", "View educate category"),
+            ("list_educategory", "List educate category")
         )
 
     def __str__(self):
