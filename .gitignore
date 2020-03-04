@@ -135,15 +135,18 @@ dmypy.json
 .idea
 idea/
 .idea/
+
 # User-specific stuff
 .idea/dataSources.local.xml
 .idea/ dataSources.xml
-.idea/edu.iml
+.idea/educate.iml
 .idea/encodings.xml
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
+.idea/inspectionProfiles/
+.idea/inspectionProfiles/profiles_settings.xml
 
 
 # Generated files
