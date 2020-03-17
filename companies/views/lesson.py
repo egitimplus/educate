@@ -70,7 +70,7 @@ class LessonViewSet(LessonPermissionMixin, mixins.ListModelMixin, mixins.Retriev
     # okuldaki derse öğretmen atanmış olanları listeler
     def list_lesson_teacher(self, request, pk=None):
         self.get_object()
-        queryset = SchoolLessonTeacher.objects.select_related('teacher__teacher').filter(lesson_id=pk).all()
+        queryset = SchoolLessonTeacher.objects.select_related('teacher__teacher','publisher').filter(lesson_id=pk).all()
 
         response = []
         for data in queryset:
@@ -79,6 +79,7 @@ class LessonViewSet(LessonPermissionMixin, mixins.ListModelMixin, mixins.Retriev
                 'name': data.name,
                 'first_name': data.teacher.teacher.first_name,
                 'last_name': data.teacher.teacher.last_name,
-                'duration': data.duration
+                'duration': data.duration,
+                'publisher_name': data.publisher.name
             })
         return Response(response)

@@ -6,10 +6,11 @@ class SchoolLessonTeacherSerializer(serializers.ModelSerializer):
 
     lesson_id = serializers.IntegerField(required=False)
     teacher_id = serializers.IntegerField()
+    publisher_id = serializers.IntegerField()
 
     class Meta:
         model = SchoolLessonTeacher
-        fields = ('id', 'name', 'duration', 'lesson_id', 'teacher_id')
+        fields = ('id', 'name', 'duration', 'lesson_id', 'teacher_id', 'publisher_id')
 
     def validate_lesson_id(self, value):
         # kullanıcı veritabanında kayıtlı mı kontrolü
