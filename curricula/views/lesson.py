@@ -66,6 +66,7 @@ class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
                     },
                 })
 
+
             return Response(data)
 
         return Response({'error': 'Sınıf öğrencisi bulunamadı.'}, status=status.HTTP_400_BAD_REQUEST)
