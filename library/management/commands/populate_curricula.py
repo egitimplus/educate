@@ -15,6 +15,7 @@ User = get_user_model()
 class Command(BaseCommand):
     def _data_crate(self):
 
+
         LearningUnit.objects.bulk_create([
             LearningUnit(id=1001,name='Doğal Sayılarla Sayma',content='-',position=1,domain_id=10, lesson_id=10),
             LearningUnit(id=1002,name='Basit Toplama ve Çıkarma',content='-',position=2,domain_id=10, lesson_id=10),
