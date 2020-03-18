@@ -74,6 +74,10 @@ class Command(BaseCommand):
             LearningDomain(id=10,name='Cebir',content='Cebir Açıklaması',position=1,)
         ])
 
+        EduCategory.objects.bulk_create([
+            EduCategory(id=42, name='Matematik',depth=0,active=1,sort_category=1)
+        ])
+
         LearningLesson.objects.bulk_create([
             LearningLesson(id=10,name='KHAN ACADEMY - TEMEL MATEMATİK',active=1,public=1,duration=100,edu_category_id=42),
             LearningLesson(id=11,name='KHAN ACADEMY - ARİTMETİK',active=1,public=1,duration=100,edu_category_id=42),
