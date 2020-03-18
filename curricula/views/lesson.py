@@ -4,6 +4,7 @@ from curricula.models import LearningLesson, LearningUnit
 from curricula.serializers import LearningLessonSerializer, LearningUnitSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
+#import query_debugger
 
 
 class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -31,16 +32,46 @@ class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
         #user_id = request.user.id
         #classroom_id = int(request.query_params.get('classroom'))
 
-        user_id = 2
+        user_id = 3
         classroom_id = 101
 
         queryset = ClassroomStudent.objects.filter(student_id=user_id, classroom_id=classroom_id).first()
 
+        print(queryset)
         if queryset:
             data = []
             lesson_queryset = ClassroomLesson.objects.prefetch_related(
                 'lesson__lesson__curricula__units__subjects').filter(
-                classroom_id=classroom_id, lesson__lesson__curricula__public=1).all()
+                classroom_id=classroom_id,
+                lesson__lesson__curricula__public=1,
+                lesson__lesson__curricula__unit__id=1001
+            ).all()
+
+
+            """
+            SELECT 
+                `companies_classroom_lesson`.`id`, 
+                `companies_classroom_lesson`.`lesson_id`, 
+                `companies_classroom_lesson`.`classroom_id`
+            FROM 
+                `companies_classroom_lesson` 
+            INNER JOIN 
+                `companies_school_lesson_teacher` 
+                ON (`companies_classroom_lesson`.`lesson_id` = `companies_school_lesson_teacher`.`id`) 
+            INNER JOIN 
+                `companies_lesson` 
+                ON (`companies_school_lesson_teacher`.`lesson_id` = `companies_lesson`.`id`) 
+            INNER JOIN `curricula_learning_lesson` 
+                ON (`companies_lesson`.`curricula_id` = `curricula_learning_lesson`.`id`) 
+            INNER JOIN `curricula_learning_unit` ON (`curricula_learning_lesson`.`id` = `curricula_learning_unit`.`lesson_id`) 
+            
+            WHERE (
+            `companies_classroom_lesson`.`classroom_id` = 101 AND 
+            `curricula_learning_lesson`.`public` = 1 AND 
+            `curricula_learning_unit`.`id` = 1001
+            )
+             """
+           
 
             for x in lesson_queryset:
 
@@ -68,6 +99,8 @@ class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
 
 
             return Response(data)
+
+
 
         return Response({'error': 'Sınıf öğrencisi bulunamadı.'}, status=status.HTTP_400_BAD_REQUEST)
 
