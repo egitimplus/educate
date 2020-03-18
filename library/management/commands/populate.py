@@ -74,41 +74,9 @@ class Command(BaseCommand):
             LearningDomain(id=10,name='Cebir',content='Cebir Açıklaması',position=1,)
         ])
 
-        EduCategory.objects.bulk_create([
-            EduCategory(id=42, name='Matematik',depth=0,active=1,sort_category=1)
-        ])
-
-        LearningLesson.objects.bulk_create([
-            LearningLesson(id=10,name='KHAN ACADEMY - TEMEL MATEMATİK',active=1,public=1,duration=100,edu_category_id=42),
-            LearningLesson(id=11,name='KHAN ACADEMY - ARİTMETİK',active=1,public=1,duration=100,edu_category_id=42),
-            LearningLesson(id=12,name='KHAN ACADEMY - CEBİR ÖNCESİ', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=13,name='KHAN ACADEMY - CEBİRİN TEMELLERİ', active=1, public=1, duration=100, edu_category_id=42),
-            LearningLesson(id=14,name='KHAN ACADEMY - CEBİR',active=1,public=1,duration=100,edu_category_id=42),
-            LearningLesson(id=15,name='KHAN ACADEMY - CEBİR 2', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=16,name='KHAN ACADEMY - TEMEL GEOMETRİ', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=17,name='KHAN ACADEMY - GEOMETRİ', active=1, public=1, duration=100, edu_category_id=42),
-            LearningLesson(id=18,name='KHAN ACADEMY - TRİGONOMETRİ', active=1, public=1, duration=100, edu_category_id=42),
-            LearningLesson(id=19,name='KHAN ACADEMY - İSTATİSTİĞE HAZIRLIK', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=20,name='KHAN ACADEMY - KALKÜLÜSE HAZIRLIK', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=21,name='KHAN ACADEMY - DİFRANSİYEL KALKÜLÜS', active=1, public=1, duration=100, edu_category_id=42),
-            LearningLesson(id=22,name='KHAN ACADEMY - İNTEGRAL KALKÜLÜS', active=1, public=1, duration=100, edu_category_id=42),
-            LearningLesson(id=23,name='KHAN ACADEMY - İSTATİSTİK VE OLASILIK', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=24,name='KHAN ACADEMY - DOĞRUSAL (LİNEER) CEBİR', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=25,name='KHAN ACADEMY - DİFRANSİYEL DENKLEMLER', active=1, public=1, duration=100,edu_category_id=42),
-            LearningLesson(id=26,name='KHAN ACADEMY - ÇOK DEĞİŞKENLİ KALKÜLÜS', active=1, public=1, duration=100, edu_category_id=42),
-            LearningLesson(id=27,name='KHAN ACADEMY - KALKÜLÜS', active=1, public=1, duration=100, edu_category_id=42),
-        ])
-
-        Lesson.objects.bulk_create([
-            Lesson(id=101, name='TEMEL MATEMATİK', slug='temel-matematik', curricula_id=10, school_id=102),
-            Lesson(id=102, name='ARİTMETİK', slug='aritmetik', curricula_id=11, school_id=102),
-            Lesson(id=103, name='CEBİR ÖNCESİ', slug='cebir-oncesi', curricula_id=12, school_id=102),
-        ])
-
         SchoolUser.objects.bulk_create([
             SchoolUser(id=1, school_id=102, user_id=1),
             SchoolUser(id=2, school_id=102, user_id=2),
-            SchoolUser(id=3, school_id=102, user_id=3),
             SchoolUser(id=4, school_id=101, user_id=1),
             SchoolUser(id=5, school_id=103, user_id=1),
             SchoolUser(id=6, school_id=101, user_id=2),

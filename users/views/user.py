@@ -9,11 +9,11 @@ from django.http import Http404
 from users.models import Pattern
 from rest_framework.decorators import action
 from django.conf import settings
-
+from users.permissions import UserPermissionMixin
 User = get_user_model()
 
 
-class UserViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
+class UserViewSet(UserPermissionMixin, mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin, viewsets.GenericViewSet):
 
     queryset = User.objects.all().order_by('first_name')

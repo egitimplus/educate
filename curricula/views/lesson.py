@@ -28,11 +28,11 @@ class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
     @action(methods=['GET'], detail=False)
     def info(self, request):
 
-        user_id = request.user.id
-        classroom_id = int(request.query_params.get('classroom'))
+        #user_id = request.user.id
+        #classroom_id = int(request.query_params.get('classroom'))
 
-        #user_id = 3
-        #classroom_id = 101
+        user_id = 2
+        classroom_id = 101
 
         queryset = ClassroomStudent.objects.filter(student_id=user_id, classroom_id=classroom_id).first()
 
@@ -65,6 +65,7 @@ class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
                         'units': unit_serializer.data
                     },
                 })
+
 
             return Response(data)
 

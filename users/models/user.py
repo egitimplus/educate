@@ -20,6 +20,9 @@ class User(AbstractUser):
     school = models.ForeignKey('companies.School', related_name='user_school', on_delete=models.SET_NULL, default=None, blank=True, null=True)
     email = models.EmailField(_('email address'), unique=True)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     groups = models.ManyToManyField(
         Group,
         verbose_name=_('groups'),
@@ -33,6 +36,8 @@ class User(AbstractUser):
         through='users.Role'
     )
 
+    def __str__(self):
+        return self.email
 
 def jwt_get_secret_key(user_model):
     return user_model.jwt_secret

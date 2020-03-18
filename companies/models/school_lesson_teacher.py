@@ -8,7 +8,7 @@ class SchoolLessonTeacher(models.Model):
     duration = models.PositiveSmallIntegerField()
     teacher = models.ForeignKey('companies.SchoolTeacher', on_delete=models.CASCADE)
     lesson = models.ForeignKey('companies.Lesson', on_delete=models.CASCADE)
-
+    publisher = models.ForeignKey('publishers.Publisher', on_delete=models.CASCADE)
     pattern = GenericRelation('users.Pattern')
 
     class Meta:

@@ -3,7 +3,7 @@ from curricula.models import LearningLectureStat, LearningLecture, LearningLectu
 from .lecture_content import LearningLectureLiveScribeSerializer, LearningLectureVideoSerializer, LearningLectureTextSerializer, LearningLectureYoutubeSerializer
 from generic_relations.relations import GenericRelatedField
 from tests.models import Test
-
+from .lecture_stat import LearningLectureStatSerializer
 
 class LearningLectureSerializer(serializers.ModelSerializer):
 
