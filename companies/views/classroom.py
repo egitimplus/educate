@@ -1,6 +1,7 @@
 from rest_framework import viewsets, mixins, status
 from companies.models import Classroom, SchoolStudent, SchoolTeacher, SchoolLessonTeacher, ClassroomLesson, ClassroomTeacher, ClassroomStudent
 from companies.serializers import ClassroomSerializer
+from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializer
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
 
@@ -151,6 +152,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(response)
 
+
     # sınıfa ders ekler
     def attach_lesson(self, request, pk=None):
         self.get_object()
@@ -182,3 +184,25 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         # TODO Dersi alan öğrenciler olduğu unutulmamalı.
 
         return Response({'message': 'Ders sınıftan başarıyla silindi.'})
+
+    # kurs derleri ve üniteleri
+    def course(self, request, pk=None):
+        self.get_object()
+
+        queryset = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(classroom_id=pk).all()
+
+        response = []
+        for item in queryset:
+            unit = LearningUnitSimpleSerializer(item.lesson.lesson.curricula.units.all(), many=True)
+
+            response.append({
+                'id': item.id,
+                'period': item.lesson.duration,
+                'name': item.lesson.name,
+                'lesson_id': item.lesson.id,
+                'lesson_name': item.lesson.lesson.name,
+                'curricula_name': item.lesson.lesson.curricula.name,
+                'unit': unit.data
+            })
+
+        return Response(response)

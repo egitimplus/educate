@@ -2,8 +2,17 @@ from rest_framework import serializers
 from curricula.models import LearningUnit
 
 
-
 class LearningUnitSimpleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = LearningUnit
+        fields = ('id', 'name')
+        extra_kwargs = {
+            'slug': {'read_only': True, 'required': False}
+        }
+
+
+class LearningUnitSimpleSerializer2(serializers.ModelSerializer):
 
     question_count = serializers.SerializerMethodField()
     test_id = serializers.SerializerMethodField()
