@@ -5,7 +5,7 @@ from .subject import LearningSubjectSerializer
 from .subject_simple import LearningSubjectSimpleSerializer
 from .test import LearningTestSerializer
 from .test_unique import LearningTestUniqueSerializer
-from .unit import LearningUnitSerializer
+from .unit import LearningUnitSerializer, LearningUnitSerializerWithSubjects
 from .unit_simple import LearningUnitSimpleSerializer
 from .lecture import LearningLectureSerializer
 from .lecture_post import LearningLecturePostSerializer

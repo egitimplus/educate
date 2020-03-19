@@ -1,7 +1,7 @@
 from rest_framework import viewsets, mixins, status
 from companies.models import Classroom, SchoolStudent, SchoolTeacher, SchoolLessonTeacher, ClassroomLesson, ClassroomTeacher, ClassroomStudent
 from companies.serializers import ClassroomSerializer
-from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializer
+from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
 
@@ -201,8 +201,32 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
                 'name': item.lesson.name,
                 'lesson_id': item.lesson.id,
                 'lesson_name': item.lesson.lesson.name,
+                'publisher_id': item.lesson.publisher_id,
+                'curricula_id': item.lesson.lesson.curricula.id,
                 'curricula_name': item.lesson.lesson.curricula.name,
                 'unit': unit.data
             })
+
+        return Response(response)
+
+    def course_lesson(self, request, pk=None):
+
+        row = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(pk=pk).first()
+
+        unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
+
+
+        response = {
+            'id': row.id,
+            'period': row.lesson.duration,
+            'name': row.lesson.name,
+            'lesson_id': row.lesson.id,
+            'lesson_name': row.lesson.lesson.name,
+            'publisher_id': row.lesson.publisher_id,
+            'curricula_id': row.lesson.lesson.curricula.id,
+            'curricula_name': row.lesson.lesson.curricula.name,
+            'unit': unit.data
+        }
+
 
         return Response(response)
