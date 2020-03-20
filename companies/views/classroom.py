@@ -185,7 +185,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response({'message': 'Ders sınıftan başarıyla silindi.'})
 
-    # kurs derleri ve üniteleri
+    # react # kurs derleri ve üniteleri
     def course(self, request, pk=None):
         self.get_object()
 
