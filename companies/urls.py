@@ -102,6 +102,10 @@ course = ClassroomViewSet.as_view({
     'get': 'course',
 })
 
+course_lesson = ClassroomViewSet.as_view({
+    'get': 'course_lesson',
+})
+
 url_patterns = format_suffix_patterns([
     url(r'^school/$', school_list, name='school-list'),
     url(r'^school/(?P<pk>[0-9]+)/$', school_detail, name='school-detail'),
@@ -123,6 +127,7 @@ url_patterns = format_suffix_patterns([
 
     url(r'^course/(?P<pk>[0-9]+)/$', course, name='course-list'),
     url(r'^course/$', classroom_list, name='classroom-list'),
+    url(r'^course/lesson/(?P<pk>[0-9]+)/$', course_lesson, name='course-lesson'),
 
     url(r'^lesson/$', lesson_list, name='lesson-list'),
     url(r'^lesson/(?P<pk>[0-9]+)/$', lesson_detail, name='lesson-detail'),

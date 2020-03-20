@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from curricula.models import LearningLesson, LearningDomain, LearningUnit
-from curricula.serializers import LearningTestSerializer, LearningSubjectSerializer
+from curricula.serializers import LearningTestSerializer, LearningSubjectSerializer, LearningSubjectSimpleSerializer
 
 
 class LearningUnitSerializer(serializers.ModelSerializer):
@@ -51,4 +51,40 @@ class LearningUnitSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class LearningUnitSerializerWithSubjects(serializers.ModelSerializer):
+
+    domain_id = serializers.IntegerField()
+    lesson_id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = LearningUnit
+        fields = ('id', 'name', 'slug', 'content', 'position', 'domain_id', 'lesson_id', 'component', 'created',
+                  'updated', 'subjects')
+        extra_kwargs = {
+            'slug': {'read_only': True, 'required': False}
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['subjects'] = LearningSubjectSimpleSerializer(read_only=True, many=True, context=self.context)
+
+    def validate_domain_id(self, value):
+        domain = LearningDomain.objects.filter(id=value).exists()
+
+        if not domain:
+            raise serializers.ValidationError('Seçilen alan bulunamadı.')
+
+        return value
+
+    def validate_lesson_id(self, value):
+        lesson = LearningLesson.objects.filter(id=value).exists()
+
+        if not lesson:
+            raise serializers.ValidationError('Seçilen ders bulunamadı.')
+
+        return value
+
 
