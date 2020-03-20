@@ -152,7 +152,6 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(response)
 
-
     # sınıfa ders ekler
     def attach_lesson(self, request, pk=None):
         self.get_object()
@@ -185,7 +184,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response({'message': 'Ders sınıftan başarıyla silindi.'})
 
-    # react # kurs derleri ve üniteleri
+    # sınıfa eklenmiş dersleri ve üniteleri listeler
     def course(self, request, pk=None):
         self.get_object()
 
@@ -209,12 +208,12 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(response)
 
+    # seçilmiş olan dersi ve üniteleri listeler
     def course_lesson(self, request, pk=None):
 
         row = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(pk=pk).first()
 
         unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
-
 
         response = {
             'id': row.id,
@@ -228,5 +227,12 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
             'unit': unit.data
         }
 
-
         return Response(response)
+
+    '''
+    # react 
+    # -----------------------------------------------------------------------------------------------------------------
+    # list()            : kurs listesi
+    # course()          : kurs derleri ve üniteleri
+    # course_lesson     : kurs dersi ve üniteleri
+    '''
