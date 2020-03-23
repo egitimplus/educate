@@ -10,6 +10,8 @@ from users.models import Pattern
 from rest_framework.decorators import action
 from django.conf import settings
 from users.permissions import UserPermissionMixin
+from companies.models import Classroom
+
 User = get_user_model()
 
 
@@ -141,7 +143,15 @@ class UserViewSet(UserPermissionMixin, mixins.CreateModelMixin, mixins.ListModel
         user_id = request.user.id
         user = User.objects.get(id=user_id)
         serializer = self.get_serializer(user)
-        return Response(serializer.data)
+
+        queryset = Classroom.objects.filter(student=user).all()
+        course_ids = queryset.values_list('id', flat=True)
+
+        data = {
+            'profile': serializer.data,
+            'courses': course_ids
+        }
+        return Response(data)
 
     # kullanıcı siler
     def destroy(self, request, *args, **kwargs):

@@ -52,3 +52,5 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
         serializer = LearningLectureStatSerializer(queryset, many=True, context=self.context)
 
         return serializer.data
+
+

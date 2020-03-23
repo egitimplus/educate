@@ -1,9 +1,10 @@
 from rest_framework import viewsets, mixins, status
 from companies.models import Classroom, SchoolStudent, SchoolTeacher, SchoolLessonTeacher, ClassroomLesson, ClassroomTeacher, ClassroomStudent
 from companies.serializers import ClassroomSerializer
-from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects
+from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects, LearningSubjectSerializer
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
+from curricula.models import LearningSubject, LearningLecture, LearningUnit
 
 
 class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
@@ -191,6 +192,9 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         queryset = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(classroom_id=pk).all()
 
         response = []
+        item = {}
+        content = {}
+
         for item in queryset:
             unit = LearningUnitSimpleSerializer(item.lesson.lesson.curricula.units.all(), many=True)
 
@@ -206,13 +210,21 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
                 'unit': unit.data
             })
 
-        return Response(response)
+        if item:
+            content = {
+                'id': item.classroom.id,
+                'name': item.classroom.name,
+                'lessons': response
+            }
+
+        return Response(content)
 
     # seçilmiş olan dersi ve üniteleri listeler
     def course_lesson(self, request, pk=None):
 
         row = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(pk=pk).first()
-
+        print(row)
+        print(request.user.id)
         unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
 
         response = {
@@ -228,6 +240,22 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         }
 
         return Response(response)
+
+    #
+    def course_lecture(self, request, pk=None):
+
+        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(unit_id=pk, lecture_parent__publisher_id=101).all()
+        serializer = LearningSubjectSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def course_user(self, request):
+
+        user = request.user
+
+        queryset = Classroom.objects.filter(student=user).all()
+        ids = queryset.values_list('id', flat=True)
+
+        return Response(ids)
 
     '''
     # react 
