@@ -4,12 +4,15 @@ from .lecture_content import LearningLectureLiveScribeSerializer, LearningLectur
 from generic_relations.relations import GenericRelatedField
 from tests.models import Test
 from .lecture_stat import LearningLectureStatSerializer
+from .test import LearningTestSerializer
+
+
 
 class LearningLectureSerializer(serializers.ModelSerializer):
 
     practice = serializers.SerializerMethodField()
     stat = serializers.SerializerMethodField()
-
+    test = LearningTestSerializer(many=True, required=False)
     subject_id = serializers.IntegerField(required=True)
     publisher_id = serializers.IntegerField(required=True)
 
@@ -23,7 +26,7 @@ class LearningLectureSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningLecture
         fields = ('id', 'name', 'summary', 'content', 'position', 'content_object', 'practice', 'subject_id',
-                  'publisher_id', 'created', 'updated', 'stat')
+                  'publisher_id', 'created', 'updated', 'stat', 'test')
         extra_kwargs = {
             'slug': {'read_only': True, 'required': False}
         }

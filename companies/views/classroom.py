@@ -5,6 +5,7 @@ from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSeri
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
 from curricula.models import LearningSubject, LearningLecture, LearningUnit
+from django.db.models import Count
 
 
 class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
@@ -185,6 +186,16 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response({'message': 'Ders sınıftan başarıyla silindi.'})
 
+    '''
+    # react 
+    # -----------------------------------------------------------------------------------------------------------------
+    # list()            : kurs listesi
+    # course()          : kurs derleri ve üniteleri
+    # course_lesson()   : kurs dersi, üniteleri ve konuları
+    # course_unit()     : kurs ünitesi, konuları ve bölümleri
+    # course_user()     : kullanıcının kayıtlı kursları
+    '''
+
     # sınıfa eklenmiş dersleri ve üniteleri listeler
     def course(self, request, pk=None):
         self.get_object()
@@ -219,12 +230,10 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(content)
 
-    # seçilmiş olan dersi ve üniteleri listeler
+    # seçilmiş olan dersin ünite ve konularını listeler
     def course_lesson(self, request, pk=None):
 
         row = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(pk=pk).first()
-        print(row)
-        print(request.user.id)
         unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
 
         response = {
@@ -241,13 +250,22 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(response)
 
-    #
-    def course_lecture(self, request, pk=None):
+    # seçilmiş olan ünitenin konularını ve bölümlerini listeler
+    def course_unit(self, request, pk=None):
+        row = LearningUnit.objects.get(pk=pk)
 
-        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(unit_id=pk, lecture_parent__publisher_id=101).all()
-        serializer = LearningSubjectSerializer(queryset, many=True)
-        return Response(serializer.data)
+        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(unit_id=pk, lecture_parent__publisher_id=101).annotate(total=Count('unit_id')).all()
+        serializer = LearningSubjectSerializer(queryset, many=True, context={'request': request, 'publisher_id':101})
 
+        data = {
+            'id': row.id,
+            'name': row.name,
+            'subjects': serializer.data
+        }
+
+        return Response(data)
+
+    # kullanıcının kayıtlı olduğu kursları listeler
     def course_user(self, request):
 
         user = request.user
@@ -257,10 +275,10 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(ids)
 
-    '''
-    # react 
-    # -----------------------------------------------------------------------------------------------------------------
-    # list()            : kurs listesi
-    # course()          : kurs derleri ve üniteleri
-    # course_lesson     : kurs dersi ve üniteleri
-    '''
+    def course_unit2(self, request, pk=None):
+
+        row = LearningUnit.objects.get(pk=pk)
+        unit = LearningUnitSerializerWithSubjects(row, many=False)
+
+        return Response(unit.data)
+

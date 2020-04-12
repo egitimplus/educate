@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.template.defaultfilters import slugify
 import itertools
+from django.contrib.contenttypes.fields import GenericRelation
 
 
 class LearningLecture(models.Model):
@@ -21,6 +22,9 @@ class LearningLecture(models.Model):
     tag = models.ManyToManyField('curricula.LearningTag', related_name='lecture_tag')
 
     publisher = models.ForeignKey('publishers.Publisher', related_name='lecture_publisher', on_delete=models.CASCADE)
+
+    test = GenericRelation('curricula.LearningTest')
+
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     content_object = GenericForeignKey('content_type', 'object_id')
