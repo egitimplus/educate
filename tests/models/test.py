@@ -16,7 +16,8 @@ class Test(models.Model):
     active = models.SmallIntegerField(default=1)
     test_type_id = models.SmallIntegerField(default=1)
 
-    questions = models.ManyToManyField('questions.Question', related_name='questions')
+    #questions = models.ManyToManyField('questions.Question', related_name='questions')
+    questions = models.ManyToManyField('questions.Question', through='TestQuestion', related_name='questions')
     categories = models.ManyToManyField('educategories.EduCategory', related_name='categories')
     publisher = models.ForeignKey('publishers.Publisher', related_name='test_publisher', on_delete=models.CASCADE)
 

@@ -3,7 +3,7 @@ from django.db import models
 
 class QuestionAnswer(models.Model):
     id = models.AutoField(primary_key=True)
-    question = models.ForeignKey('questions.Question', related_name='question_answers', on_delete=models.CASCADE)
+    question = models.ForeignKey('questions.Question', related_name='answers', on_delete=models.CASCADE)
     answer_type = models.SmallIntegerField()
     answer_value = models.TextField()
     answer_choice = models.SmallIntegerField()

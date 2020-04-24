@@ -3,6 +3,8 @@ from tests.models import Test
 from tests.serializers import TestSerializer, TestPostSerializer, SimpleTestSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from educategories.serializers import EduCategorySimpleSerializer
+from questions.serializers import QuestionSerializer
 
 
 class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -17,32 +19,20 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
 
         return TestSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = TestSerializer(instance)
-
-        return Response(serializer.data)
-
     @action(methods=['GET'], detail=True)
     def view(self, request, pk=None):
         queryset = Test.objects.prefetch_related('questions','categories').filter(id=pk).first()
 
-        questions = []
-        categories = []
-
-        for question in queryset.question.all():
-            questions.add(question)
-
-        for category in queryset.edu_category.all():
-            categories.add(category)
+        questions = QuestionSerializer(queryset.questions.order_by('testquestion').all(), many=True)
+        categories = EduCategorySimpleSerializer(queryset.categories.all(), many=True)
 
         response = {
             'id': queryset.id,
             'name': queryset.name,
             'test_seconds': queryset.test_seconds,
             'active': queryset.active,
-            'questions': questions,
-            'categories': categories
+            'questions': questions.data,
+            'categories': categories.data
         }
         return Response(response)
 
@@ -63,3 +53,10 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         serializer = SimpleTestSerializer(queryset, many=True)
 
         return Response(serializer.data)
+
+    '''
+    # react 
+    # -----------------------------------------------------------------------------------------------------------------
+    # list()            : kurs listesi
+    '''
+

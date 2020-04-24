@@ -4,7 +4,7 @@ from companies.serializers import ClassroomSerializer
 from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects, LearningSubjectSerializer
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
-from curricula.models import LearningSubject, LearningLecture, LearningUnit
+from curricula.models import LearningSubject, LearningUnit
 from django.db.models import Count
 
 
@@ -25,6 +25,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
     # sınıfa eklenmiş öğrencileri listeler
     def student_list(self, request, pk=None):
         self.get_object()
+
         queryset = ClassroomStudent.objects.select_related('student').filter(classroom_id=pk).all()
 
         response = []
@@ -44,9 +45,8 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         # SIGNAL : Pattern listesine signal ile ekleme yapılıyor
         # SIGNAL : Role listesine signal ile ekleme yapılıyor
 
-        self.get_object()
+        classroom = self.get_object()
 
-        classroom = Classroom.objects.get(id=pk)
         users = request.data.get('users')
 
         for user in users:
@@ -69,8 +69,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         # SIGNAL : Pattern listesinden signal ile silme yapılıyor
         # SIGNAL : Role listesinden signal ile silme yapılıyor
 
-        self.get_object()
-        classroom = Classroom.objects.get(id=pk)
+        classroom = self.get_object()
         users = request.data.get('users')
 
         for user in users:
@@ -100,9 +99,8 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         # SIGNAL : Pattern listesine signal ile ekleme yapılıyor
         # SIGNAL : Role listesine signal ile ekleme yapılıyor
 
-        self.get_object()
+        classroom = self.get_object()
 
-        classroom = Classroom.objects.get(id=pk)
         users = request.data.get('users')
 
         for user in users:
@@ -125,8 +123,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         # SIGNAL : Pattern listesinden signal ile silme yapılıyor
         # SIGNAL : Role listesinden signal ile silme yapılıyor
 
-        self.get_object()
-        classroom = Classroom.objects.get(id=pk)
+        classroom = self.get_object()
         users = request.data.get('users')
 
         for user in users:
@@ -156,9 +153,8 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
     # sınıfa ders ekler
     def attach_lesson(self, request, pk=None):
-        self.get_object()
+        classroom = self.get_object()
 
-        classroom = Classroom.objects.get(id=pk)
         lesson_teachers = request.data.get('lesson_teachers')
 
         for lesson_teacher in lesson_teachers:
@@ -274,11 +270,4 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         ids = queryset.values_list('id', flat=True)
 
         return Response(ids)
-
-    def course_unit2(self, request, pk=None):
-
-        row = LearningUnit.objects.get(pk=pk)
-        unit = LearningUnitSerializerWithSubjects(row, many=False)
-
-        return Response(unit.data)
 

@@ -7,7 +7,6 @@ from .lecture_stat import LearningLectureStatSerializer
 from .test import LearningTestSerializer
 
 
-
 class LearningLectureSerializer(serializers.ModelSerializer):
 
     practice = serializers.SerializerMethodField()
@@ -36,7 +35,11 @@ class LearningLectureSerializer(serializers.ModelSerializer):
         if lecture.practice_id:
             queryset = Test.objects.prefetch_related('questions').filter(id=lecture.practice_id).first()
 
-            practice = {'name': queryset.name, 'question_count': queryset.questions.count()}
+            practice = {
+                'id': queryset.id,
+                'name': queryset.name,
+                'question_count': queryset.questions.count()
+            }
 
         return practice
 
