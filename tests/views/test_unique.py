@@ -46,3 +46,8 @@ class TestUniqueViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins
             }
 
         return Response(response)
+
+    @action(methods=['PUT'], detail=True)
+    def update_result(self, request, *args, **kwargs):
+        print(request)
+        return self.partial_update(request, *args, **kwargs)

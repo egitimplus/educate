@@ -7,3 +7,4 @@ from .question_user import QuestionUserSerializer
 from .question_answer import QuestionAnswerSerializer
 from .question_answer_user import UserQuestionAnswerSerializer
 from .question_answer_stat import QuestionAnswerStatSerializer
+from .question_answer_stat_post import QuestionAnswerStatPostSerializer
