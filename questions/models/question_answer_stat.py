@@ -10,6 +10,7 @@ class QuestionAnswerStat(models.Model):
     answer_is_true = models.SmallIntegerField()
     answer_seconds = models.SmallIntegerField()
     answer_type = models.SmallIntegerField()
+    answer_count = models.SmallIntegerField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 

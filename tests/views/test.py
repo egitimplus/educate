@@ -23,7 +23,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
     def view(self, request, pk=None):
         queryset = Test.objects.prefetch_related('questions','categories').filter(id=pk).first()
 
-        questions = QuestionSerializer(queryset.questions.order_by('testquestion').all(), many=True)
+        questions = QuestionSerializer(queryset.questions.order_by('question').all(), many=True)
         categories = EduCategorySimpleSerializer(queryset.categories.all(), many=True)
 
         response = {

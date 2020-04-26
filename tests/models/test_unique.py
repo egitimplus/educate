@@ -8,6 +8,7 @@ class TestUnique(models.Model):
     report = models.TextField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
+    test_result = models.SmallIntegerField()
 
     class Meta:
         db_table = 'tests_test_unique'

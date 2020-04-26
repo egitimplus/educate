@@ -8,13 +8,13 @@ from questions.serializers import QuestionAnswerPostSerializer
 class QuestionSerializer(serializers.ModelSerializer):
 
     source_questions = SourceQuestionSerializer(many=True)
-    question_answers = QuestionAnswerPostSerializer(many=True)
+    answers = QuestionAnswerPostSerializer(many=True)
     edu_category = EduCategorySimpleSerializer(many=False)
 
     class Meta:
         model = Question
         fields = ('id', 'name', 'level', 'question_start_type', 'question_start_value', 'question_answer_type',
-                  'question_answer_value', 'question_pattern', 'question_answers', 'active', 'seconds',
+                  'question_answer_value', 'question_pattern', 'answers', 'active', 'seconds',
                   'source_questions', 'edu_category')
 
 
