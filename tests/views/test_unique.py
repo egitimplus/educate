@@ -1,6 +1,6 @@
 from rest_framework import viewsets, mixins, status
 from tests.models import TestUnique
-from tests.serializers import TestUniqueSerializer
+from tests.serializers import TestUniqueSerializer, TestUniquePostSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -10,6 +10,12 @@ class TestUniqueViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins
 
     queryset = TestUnique.objects.all()
     serializer_class = TestUniqueSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return TestUniquePostSerializer
+
+        return TestUniqueSerializer
 
     '''
     # react 
