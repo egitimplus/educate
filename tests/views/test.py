@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from educategories.serializers import EduCategorySimpleSerializer
 from questions.serializers import QuestionSerializer
-
+from questions.serializers import QuestionAnswerStatSerializer
 
 class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                   mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
@@ -59,4 +59,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
     # -----------------------------------------------------------------------------------------------------------------
     # list()            : kurs listesi
     '''
+
+
+
 
