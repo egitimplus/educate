@@ -4,6 +4,8 @@ from rest_framework import serializers
 
 class QuestionAnswerStatPostSerializer(serializers.ModelSerializer):
 
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
     question_answer_id = serializers.IntegerField()
     question_id = serializers.IntegerField()
     test_unique_id = serializers.IntegerField()
@@ -14,7 +16,8 @@ class QuestionAnswerStatPostSerializer(serializers.ModelSerializer):
                   'question_answer_id', 'answer_count', 'created', 'updated')
 
     def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
+        if 'user' not in validated_data:
+            validated_data['user'] = self.context['request'].user
 
         question_answer_stat = QuestionAnswerStat.objects.create(**validated_data)
 

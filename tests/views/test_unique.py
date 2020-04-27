@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 
 
 class TestUniqueViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+                        mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = TestUnique.objects.all()
     serializer_class = TestUniqueSerializer
