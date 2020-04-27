@@ -35,10 +35,17 @@ class LearningLectureSerializer(serializers.ModelSerializer):
         if lecture.practice_id:
             queryset = Test.objects.prefetch_related('questions').filter(id=lecture.practice_id).first()
 
+            test_result = 0
+
+            result_query = queryset.tests.order_by('-id').first()
+            if result_query:
+                test_result = result_query.test_result
+
             practice = {
                 'id': queryset.id,
                 'name': queryset.name,
-                'question_count': queryset.questions.count()
+                'question_count': queryset.questions.count(),
+                'test_result': test_result
             }
 
         return practice
