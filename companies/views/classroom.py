@@ -1,10 +1,10 @@
 from rest_framework import viewsets, mixins, status
 from companies.models import Classroom, SchoolStudent, SchoolTeacher, SchoolLessonTeacher, ClassroomLesson, ClassroomTeacher, ClassroomStudent
 from companies.serializers import ClassroomSerializer
-from curricula.serializers import LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects, LearningSubjectSerializer
+from curricula.serializers import LearningLectureStatSerializer, LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects, LearningSubjectSerializer
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
-from curricula.models import LearningSubject, LearningUnit
+from curricula.models import LearningSubject, LearningUnit, LearningLectureStat
 from django.db.models import Count
 
 
@@ -185,11 +185,12 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
     '''
     # react 
     # -----------------------------------------------------------------------------------------------------------------
-    # list()            : kurs listesi
-    # course()          : kurs derleri ve üniteleri
-    # course_lesson()   : kurs dersi, üniteleri ve konuları
-    # course_unit()     : kurs ünitesi, konuları ve bölümleri
-    # course_user()     : kullanıcının kayıtlı kursları
+    # list()                : kurs listesi
+    # course()              : kurs derleri ve üniteleri
+    # course_lesson()       : kurs dersi, üniteleri ve konuları
+    # course_unit()         : kurs ünitesi, konuları ve bölümleri
+    # course_user()         : kullanıcının kayıtlı kursları
+    # course_lecture_stat() : lecture okundu olarak düzenler
     '''
 
     # sınıfa eklenmiş dersleri ve üniteleri listeler
@@ -271,3 +272,13 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(ids)
 
+    def course_lecture_stat(self, request, pk=None):
+
+        obj, created = LearningLectureStat.objects.update_or_create(
+            user=request.user,
+            lecture_id=pk,
+            defaults={'lecture_status': 1},
+        )
+
+        serializer = LearningLectureStatSerializer(obj, many=False)
+        return Response({'data': serializer.data})
