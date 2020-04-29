@@ -25,7 +25,7 @@ class LearningLectureSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningLecture
         fields = ('id', 'name', 'summary', 'content', 'position', 'content_object', 'practice', 'subject_id',
-                  'publisher_id', 'created', 'updated', 'stat', 'test')
+                  'component', 'publisher_id', 'created', 'updated', 'stat', 'test')
         extra_kwargs = {
             'slug': {'read_only': True, 'required': False}
         }
