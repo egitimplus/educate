@@ -5,6 +5,7 @@ from generic_relations.relations import GenericRelatedField
 from tests.models import Test
 from .lecture_stat import LearningLectureStatSerializer
 from .test import LearningTestSerializer
+from components.serializers import ComponentUserSerializer
 
 
 class LearningLectureSerializer(serializers.ModelSerializer):
@@ -14,6 +15,7 @@ class LearningLectureSerializer(serializers.ModelSerializer):
     test = LearningTestSerializer(many=True, required=False)
     subject_id = serializers.IntegerField(required=True)
     publisher_id = serializers.IntegerField(required=True)
+    component = ComponentUserSerializer(many=True, required=False)
 
     content_object = GenericRelatedField({
         LearningLectureVideo: LearningLectureVideoSerializer(),

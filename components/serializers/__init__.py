@@ -1,6 +1,6 @@
-from .component import ComponentSerializer
-from .component_post import ComponentPostSerializer
 from .component_stat import ComponentStatSerializer
+from .component import ComponentSerializer, ComponentUserSerializer
+from .component_post import ComponentPostSerializer
 from .component_answer import ComponentAnswerSerializer
 from .component_answer_stat import ComponentAnswerStatSerializer
 from .component_status_change import ComponentStatusChangeSerializer
