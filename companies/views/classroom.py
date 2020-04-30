@@ -6,7 +6,8 @@ from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
 from curricula.models import LearningSubject, LearningUnit, LearningLectureStat
 from django.db.models import Count
-
+from components.models import ComponentStat
+from components.serializers import ComponentStatSerializer
 
 class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
                        mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
@@ -187,24 +188,33 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
     # -----------------------------------------------------------------------------------------------------------------
     # list()                : kurs listesi
     # course()              : kurs derleri ve üniteleri
-    # course_lesson()       : kurs dersi, üniteleri ve konuları
     # course_unit()         : kurs ünitesi, konuları ve bölümleri
     # course_user()         : kullanıcının kayıtlı kursları
     # course_lecture_stat() : lecture okundu olarak düzenler
+    # course_stat()         : kurs soru tiplerinin istatistikleri
+    # course_lesson()       : kurs dersi, üniteleri ve konuları - kulllanılmıyor
     '''
 
     # sınıfa eklenmiş dersleri ve üniteleri listeler
     def course(self, request, pk=None):
         self.get_object()
 
-        queryset = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(classroom_id=pk).all()
+        queryset = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units__component').filter(classroom_id=pk).all()
 
         response = []
         item = {}
         content = {}
 
         for item in queryset:
-            unit = LearningUnitSimpleSerializer(item.lesson.lesson.curricula.units.all(), many=True)
+            unit = LearningUnitSerializerWithSubjects(item.lesson.lesson.curricula.units.all(), many=True)
+
+            components = list()
+
+            for unit_item in item.lesson.lesson.curricula.units.all():
+                unit_components = list(unit_item.component.values_list('id', flat=True))
+                components = components + unit_components
+
+            unique_components = list(set(components))
 
             response.append({
                 'id': item.id,
@@ -215,7 +225,8 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
                 'publisher_id': item.lesson.publisher_id,
                 'curricula_id': item.lesson.lesson.curricula.id,
                 'curricula_name': item.lesson.lesson.curricula.name,
-                'unit': unit.data
+                'unit': unit.data,
+                'component': unique_components
             })
 
         if item:
@@ -250,9 +261,10 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
     # seçilmiş olan ünitenin konularını ve bölümlerini listeler
     def course_unit(self, request, pk=None):
         row = LearningUnit.objects.get(pk=pk)
+        publisher_id = int(self.request.query_params.get('publisher_id', None))
 
-        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(unit_id=pk, lecture_parent__publisher_id=101).annotate(total=Count('unit_id')).all()
-        serializer = LearningSubjectSerializer(queryset, many=True, context={'request': request, 'publisher_id':101})
+        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(unit_id=pk, lecture_parent__publisher_id=publisher_id).annotate(total=Count('unit_id')).all()
+        serializer = LearningSubjectSerializer(queryset, many=True, context={'request': request, 'publisher_id': publisher_id})
 
         data = {
             'id': row.id,
@@ -282,3 +294,21 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         serializer = LearningLectureStatSerializer(obj, many=False)
         return Response({'data': serializer.data})
+
+    def course_stat(self, request, pk=None):
+        queryset = ClassroomLesson.objects.prefetch_related('lesson__lesson__curricula__units__component').filter(classroom_id=pk).all()
+
+        e = list()
+
+        for q in queryset:
+            for u in q.lesson.lesson.curricula.units.all():
+                d = list(u.component.values_list('id', flat=True))
+                e = e + d
+
+        components = (list(set(e)))
+
+        stats = ComponentStat.objects.filter(component__in=components, user=request.user).all()
+
+        serializer = ComponentStatSerializer(stats, many=True)
+        return Response(serializer.data)
+
