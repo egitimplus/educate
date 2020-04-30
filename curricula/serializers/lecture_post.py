@@ -104,7 +104,6 @@ class LearningLecturePostSerializer(serializers.ModelSerializer):
         validated_data['object_id'] = content['object_id']
         validated_data['content_type_id'] = content['content_type_id']
 
-        print(validated_data)
 
         lecture = LearningLecture.objects.create(**validated_data)
 

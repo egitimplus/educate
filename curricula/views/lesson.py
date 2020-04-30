@@ -37,7 +37,6 @@ class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mi
 
         queryset = ClassroomStudent.objects.filter(student_id=user_id, classroom_id=classroom_id).first()
 
-        print(queryset)
         if queryset:
             data = []
             lesson_queryset = ClassroomLesson.objects.prefetch_related(
