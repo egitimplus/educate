@@ -3,8 +3,7 @@ from curricula.models import LearningSubject, LearningUnit, LearningLectureStat
 from .test import LearningTestSerializer
 from .lecture import LearningLectureSerializer
 from .lecture_stat import LearningLectureStatSerializer
-from django.db.models import Count
-
+from tests.models import Test
 
 class LearningSubjectSerializer(serializers.ModelSerializer):
     unit_id = serializers.IntegerField(required=False)
@@ -62,6 +61,22 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
         # TODO burası acaba sadece o publisher veriyormu kontrol edelim
         tests = subject.test.filter(test__publisher_id=publisher_id).first()
 
-        serializer = LearningTestSerializer(tests, many=False)
+        test = {}
 
-        return serializer.data
+        if tests:
+            queryset = Test.objects.prefetch_related('questions').filter(id=tests.test.id).first()
+
+            test_result = 0
+
+            result_query = queryset.tests.order_by('-id').first()
+            if result_query:
+                test_result = result_query.test_result
+
+            test = {
+                'id': queryset.id,
+                'name': queryset.name,
+                'question_count': queryset.questions.count(),
+                'test_result': test_result
+            }
+
+        return test

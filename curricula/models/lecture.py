@@ -23,8 +23,6 @@ class LearningLecture(models.Model):
 
     publisher = models.ForeignKey('publishers.Publisher', related_name='lecture_publisher', on_delete=models.CASCADE)
 
-    test = GenericRelation('curricula.LearningTest')
-
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     content_object = GenericForeignKey('content_type', 'object_id')

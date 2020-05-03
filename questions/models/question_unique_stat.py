@@ -7,7 +7,6 @@ class QuestionUniqueStat(models.Model):
     user = models.ForeignKey('users.User', related_name='question_unique_stat_user', on_delete=models.CASCADE)
     question_code = models.CharField(max_length=255)
     status = models.SmallIntegerField()
-    answers = models.TextField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
