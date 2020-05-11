@@ -8,6 +8,9 @@ class ComponentStat(models.Model):
     component_status = models.SmallIntegerField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
+    percent = models.SmallIntegerField()
+    solved = models.SmallIntegerField()
+    repeat = models.SmallIntegerField()
 
     class Meta:
         db_table = 'components_component_stat'

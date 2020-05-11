@@ -10,9 +10,7 @@ from library.feeds import get_breadcrumb, get_category
 
 class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.CreateModelMixin,
                        mixins.DestroyModelMixin, viewsets.GenericViewSet):
-    """
-    Soru parçaları
-    """
+
     queryset = Component.objects.all()
     serializer_class = ComponentSerializer
 

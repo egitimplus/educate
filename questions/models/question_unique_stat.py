@@ -7,8 +7,12 @@ class QuestionUniqueStat(models.Model):
     user = models.ForeignKey('users.User', related_name='question_unique_stat_user', on_delete=models.CASCADE)
     question_code = models.CharField(max_length=255)
     status = models.SmallIntegerField()
+    answers = models.TextField(default='[]')
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
+    percent = models.SmallIntegerField()
+    solved = models.SmallIntegerField()
+    repeat = models.SmallIntegerField()
 
     class Meta:
         db_table = 'questions_question_unique_stat'
