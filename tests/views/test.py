@@ -287,7 +287,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         for component in all_components:
             component_stat_repo.update_component_status(component)
 
-         test_result = math.ceil((result['true_questions'] / result['total_questions']) * 100)
+        test_result = math.ceil((result['true_questions'] / result['total_questions']) * 100)
 
         if test_result > 100:
             test_result = 100
