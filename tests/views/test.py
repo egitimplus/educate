@@ -11,7 +11,7 @@ from questions.serializers import QuestionSerializer
 from questions.models import QuestionAnswerStat, QuestionUnique, QuestionUniqueStat
 from components.models import ComponentAnswerStat, ComponentStat, ComponentAnswer
 from questions.feeds import QuestionRepository
-from components.feeds import ComponentStatRepository, ComponentRepository
+from components.feeds import ComponentStatRepository, ComponentIdRepository
 import itertools
 
 
@@ -92,7 +92,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             return HttpResponseServerError("You must answer a question.")
 
         question_repo = QuestionRepository(request=request)
-        component_repo = ComponentRepository(request=request)
+        component_id_repo = ComponentIdRepository(request=request)
 
         queryset = Test.objects.prefetch_related(
             'questions',
@@ -264,6 +264,11 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
                         answer_is_empty=1
                     )
 
+        true_sub_components = component_id_repo.all_sub_components(components['true'])
+
+        components['true'] = components['true'] + true_sub_components
+        components['all'] = components['all'] + true_sub_components
+
         # sorulardaki soru parçalarını tekleştirelim.
         all_components = list(set(itertools.chain(*components['all'])))
 
@@ -282,7 +287,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         for component in all_components:
             component_stat_repo.update_component_status(component)
 
-        test_result = math.ceil((result['true_questions'] / result['total_questions']) * 100)
+         test_result = math.ceil((result['true_questions'] / result['total_questions']) * 100)
 
         if test_result > 100:
             test_result = 100

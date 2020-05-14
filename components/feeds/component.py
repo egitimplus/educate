@@ -316,3 +316,25 @@ class ComponentPartRepository:
             return True
 
         return False
+
+
+class ComponentIdRepository:
+
+    def __init__(self, request):
+        self.request = request
+
+    def sub_components(self, queryset):
+
+        data = []
+        for component in queryset.source_component.all():
+            data.append(component.id)
+
+        return data
+
+    def all_sub_components(self, queryset, data=[]):
+
+        for component in queryset.source_component.all():
+            data.append(component.id)
+            self.all_sub_components(component, data)
+
+        return data
