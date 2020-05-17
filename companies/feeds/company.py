@@ -6,8 +6,8 @@ class CompanyRepository:
     def __init__(self, request, **kwargs):
         self.request = request
 
-    def school_group_manager_id(self, group_id):
-        group = CompanyGroup.objects.filter(id=group_id).first()
+    def school_group_manager_id(self, id):
+        group = CompanyGroup.objects.filter(id=id).first()
         if not group:
             return 0
         return group.user_id

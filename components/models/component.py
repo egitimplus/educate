@@ -30,4 +30,3 @@ class Component(models.Model):
             ("search_component", ""), # ComponentViewSet@search
             ("parents_component", "") # ComponentViewSet@parents
         )
-

@@ -1,20 +1,19 @@
-from educategories.models import  EduCategory
+from educategories.models import EduCategory
 
 
 class EduCategoryRepository:
 
-    def detail(self, pk):
-        category = EduCategory.objects.values_list('id', 'name').filter(id=pk).first()
+    def detail(self, id):
+        category = EduCategory.objects.values_list('id', 'name').filter(id=id).first()
 
         return {
             'id': category[0],
             'name': category[1]
         }
 
+    def breadcrumb(self, id):
 
-    def breadcrumb(self, pk):
-
-        category = EduCategory.objects.filter(id=pk).first()
+        category = EduCategory.objects.filter(id=id).first()
 
         # breadcrumb oluşturalım
         category_list = [category.lesson_id, category.subject_id, category.unit_id, category.id]

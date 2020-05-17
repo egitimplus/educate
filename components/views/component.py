@@ -19,13 +19,20 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
 
         queryset = Component.objects.filter(id=pk).prefetch_related('to_component', 'source_component').first()
 
-        component_repo = ComponentRepository(request=request)
-        all_components = component_repo.all_component_types(queryset=queryset,
-                                                            sub_components='list',
-                                                            all_sub_components='list',
-                                                            parent_components='list',
-                                                            data_components='dict',
-                                                            all_components='list')
+        cr = ComponentRepository(request=request, component=queryset)
+
+        cr.sub_components()
+        cr.all_sub_components()
+        cr.parent_components()
+        cr.data_components()
+
+        all_components = cr.component_formats(
+            sub_components='list',
+            all_sub_components='list',
+            parent_components='list',
+            data_components='dict',
+            all_components='list'
+        )
 
         serialized_question = ComponentSerializer(queryset)
         response = serialized_question.data
@@ -48,11 +55,16 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
         component_status = stats.component_status if status else 0
         component_count = queryset.component_answer_stat_component.count()
 
-        component_repo = ComponentRepository(request, counts=True, status=True)
-        all_components = component_repo.all_component_types(queryset=queryset,
-                                                            ub_components='dict',
-                                                            all_sub_components='dict',
-                                                            counts=True)
+        cr = ComponentRepository(request=request, component=queryset, counts=True, status=True)
+
+        cr.sub_components()
+        cr.all_sub_components()
+
+        all_components = cr.component_formats(
+            sub_components='dict',
+            all_sub_components='dict'
+        )
+
         response = serialized_component.data
         response.update({
             'sub_components': all_components['sub_components'],
@@ -70,7 +82,6 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
     def search(self, request):
 
         response = []
-        component_repo = ComponentRepository(request=request)
 
         # TODO post işlemleri
         queryset = Component.objects.prefetch_related('to_component').filter(name__icontains=request.data.get('word')).all()
@@ -80,11 +91,19 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
             serialized_question = ComponentSerializer(query)
             item = serialized_question.data
 
-            all_components = component_repo.all_component_types(queryset=query,
-                                                                sub_components='list',
-                                                                all_sub_components='list',
-                                                                parent_components='list',
-                                                                all_components='list')
+            cr = ComponentRepository(request=request, component=query)
+
+            cr.sub_components()
+            cr.all_sub_components()
+            cr.parent_components()
+
+            all_components = cr.component_formats(
+                sub_components='list',
+                all_sub_components='list',
+                parent_components='list',
+                all_components='list'
+            )
+
             item.update(all_components)
 
             response.append(item)

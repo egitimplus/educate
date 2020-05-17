@@ -1,3 +1,4 @@
-from .component import ComponentRepository, ComponentPartRepository, ComponentIdRepository
+from .component import ComponentRepository
+from .component_part import ComponentPartRepository
+from .components_stat import ComponentsStatRepository
 from .component_stat import ComponentStatRepository
-

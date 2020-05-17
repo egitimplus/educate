@@ -88,6 +88,10 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'exam'
         ).first()
 
+        question_repo = ComponentPartRepository(request, queryset)
+
+        source = SourceQuestionSerializer(queryset.source_questions, many=True)
+
         answers = []
         for answer in queryset.question_answers.all():
             component_answers = ComponentAnswer.objects.filter(question_answer_id=answer.id).all()
@@ -127,10 +131,6 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
                 'exam_year': item.exam_year,
                 'exam_id': item.exam_id
             });
-
-        question_repo = ComponentPartRepository(request, queryset)
-
-        source = SourceQuestionSerializer(queryset.source_questions, many=True)
 
         response = {
             'id': queryset.id,

@@ -11,7 +11,8 @@ from questions.serializers import QuestionSerializer
 from questions.models import QuestionAnswerStat, QuestionUnique, QuestionUniqueStat
 from components.models import ComponentAnswerStat, ComponentStat, ComponentAnswer
 from questions.feeds import QuestionRepository
-from components.feeds import ComponentStatRepository, ComponentIdRepository
+from components.feeds import ComponentStatRepository, ComponentsStatRepository, ComponentRepository
+from tests.feeds import TestRepository
 import itertools
 
 
@@ -91,9 +92,6 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         if len(answers) < 1:
             return HttpResponseServerError("You must answer a question.")
 
-        question_repo = QuestionRepository(request=request)
-        component_id_repo = ComponentIdRepository(request=request)
-
         queryset = Test.objects.prefetch_related(
             'questions',
             'questions__component',
@@ -101,176 +99,84 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             'questions__answers__answer_components'
         ).get(id=test_id)
 
-        test_unique = TestUnique.objects.create(
-            user_id=request.user.id,
-            test_id=queryset.id,
-            report='report',
-            test_result=0
-        )
+        test = TestRepository(request=request, test=queryset)
 
-        questions = queryset.questions.order_by('question').all()
+        test_answer = test.answer()
+        test_unique = test_answer.test_unique
 
-        result = {
-            'total_questions': len(questions),
-            'true_questions': 0,
-            'false_questions': 0,
-            'empty_questions': 0
-        }
+        questions = test.questions()
 
-        components = {
-            'all': [],
-            'true': [],
-            'false': [],
-            'empty': []
-        }
+        test_answer.total_question = len(questions)
 
         for question in questions:
-            # soruya ait soru parçalarını veritabanından çekelim
-            question_components = question.component.all().values_list('id', flat=True)
-
-            # soruya ait soru parçalarını listeye ekleyelim ve küçükten büyüğe göre sıralayalım
-            question_components_unique = list(question_components)
-            question_components_unique.sort()
-
-            # tüm sorulara ait soru parçalarını listeye ekleyelim
-            components['all'].append(question_components_unique)
-
-            # doğru soru cevabını çekelim ve soru tiplerinden unique bir kod oluşturalım
-            # benzer soruları bu şekilde tespit edeceğiz
-            question_answer = question.answers.filter(is_true_answer=1).first()
-            question_code = '-'.join(map(str, question_components_unique))
+            qr = QuestionRepository(request=request, question=question)
 
             i = 0
+            answer_is_true = 0
+
             # post edilen soru cevaplarına göre veri tabanında gerekli düzenlemeleri yapalım
             for answer in answers:
                 # Eğer post edilen cevaplar içerisinde bu soru için cevap bulunduysa
                 if answer['question_id'] == question.id:
-
+                    question_answer_id = answer['answer_id']
                     i = i + 1
                     # Eğer post edilen cevap doğru ise
-                    if answer['answer_id'] == question_answer.id:
-                        # sorudaki soru parçaları için gerekli işlemleri yapalım
-                        for question_component in question_components:
-                            # soru parçasını doğru soru parçası listesine ekleyelim
-                            components['true'].append(question_component)
-
-                            # cevabı soru parçası istatistiklerine ekleyelim
-                            ComponentAnswerStat.objects.create(
-                                component_id=question_component,
-                                question_id=question.id,
-                                test_unique_id=test_unique.id,
-                                user_id=request.user.id,
-                                answer_is_true=1,
-                                answer_is_empty=0
-                            )
-
-                            # doğru soru sayısını bir artıralım
-                            result['true_questions'] = result['true_questions'] + 1
-                            answer_is_true = 1
-
+                    if question_answer_id == qr.true_answer.id:
+                        true_components = qr.add_true_answer(test_unique=test_unique)
+                        test_answer.true_components.append(true_components)
+                        test_answer.true_question = test_answer.true_question + 1
+                        # cevabı soru istatistiklerine ekleyelim
+                        qr.add_question_answer(
+                            test_unique=test_unique,
+                            question_answer_id=question_answer_id,
+                            answer_is_true=1
+                        )
+                        answer_is_true = 1
                     # Eğer post edilen cevap yanlış ise
                     else:
-                        component_answers = ComponentAnswer.objects.filter(question_answer_id=question_answer.id).all()
+                        component_answers = ComponentAnswer.objects.select_related(
+                            'component'
+                        ).filter(question_answer_id=question_answer_id).all()
+
                         if len(component_answers) > 0:
                             # sorudaki soru parçaları için gerekli işlemleri yapalım
                             for component_answer in component_answers:
+                                csr = ComponentStatRepository(request=self.request, component=component_answer.component)
                                 if component_answer.component_ok == 1:
                                     # soru parçasını doğru soru parçası listesine ekleyelim
-                                    components['true'].append(component_answer.component_id)
-                                    component_is_true = 1
+                                    true_components = csr.add_true_answer(question=question, test_unique=test_unique)
+                                    test_answer.true_components.append(true_components)
                                 else:
                                     # soru parçasını yanlış soru parçası listesine ekleyelim
-                                    components['false'].append(component_answer.component_id)
-                                    component_is_true = 0
-
-                                # cevabı soru parçası istatistiklerine ekleyelim
-                                ComponentAnswerStat.objects.create(
-                                    component_id=component_answer.component_id,
-                                    question_id=question.id,
-                                    test_unique_id=test_unique.id,
-                                    user_id=request.user.id,
-                                    answer_is_true=component_is_true,
-                                    answer_is_empty=0
-                                )
+                                    false_components = csr.add_false_answer(question=question, test_unique=test_unique)
+                                    test_answer.false_components.append(false_components)
                         else:
-                            # sorudaki soru parçaları için gerekli işlemleri yapalım
-                            for question_component in question_components:
-                                # soru parçasını yanlış soru parçası listesine ekleyelim
-                                components['false'].append(question_component)
+                            # soru parçasını yanlış soru parçası listesine ekleyelim
+                            false_components = qr.add_false_answer(test_unique=test_unique)
+                            test_answer.false_components.append(false_components)
 
-                                # cevabı soru parçası istatistiklerine ekleyelim
-                                ComponentAnswerStat.objects.create(
-                                    component_id=question_component,
-                                    question_id=question.id,
-                                    test_unique_id=test_unique.id,
-                                    user_id=request.user.id,
-                                    answer_is_true=0,
-                                    answer_is_empty=0
-                                )
-
-                        # yanlış soru sayısını bir artıralım
-                        result['false_questions'] = result['false_questions'] + 1
-                        answer_is_true = 0
-
+                        test_answer.false_question = test_answer.false_question + 1
                         # cevabı soru istatistiklerine ekleyelim
-                        QuestionAnswerStat.objects.create(
-                            answer_is_true=answer_is_true,
-                            answer_seconds=0,
-                            answer_type=1,
-                            question_id=question.id,
-                            user_id=request.user.id,
-                            test_unique_id=test_unique.id,
-                            question_answer_id=question_answer.id,
-                            answer_count=1
+                        qr.add_question_answer(
+                            test_unique=test_unique,
+                            question_answer_id=question_answer_id,
+                            answer_is_true=0
                         )
-
-            # soru unique kodunu veritabanında varsa güncelleyelim eğer yoksa ekleyelim
-            obj, created = QuestionUnique.objects.get_or_create(
-                question_code=question_code,
-            )
-
-            question_unique_stat = QuestionUniqueStat.objects.get(question_code=question_code)
-            # verilen cevaba göre soru için yeni bir kod oluşturalım
-            question_unique = question_repo.question_unique_status(question_unique_stat, answer_is_true)
-
-            # unique soru istatistiklerini ekleyelim
-            QuestionUniqueStat.objects.update_or_create(
-                question_unique_id=obj.id,
-                user_id=request.user.id,
-                question_code=question_code,
-                defaults={
-                    "status": question_unique['status'],
-                    "percent": question_unique['percent'],
-                    "solved": question_unique['solved']
-                }
-            )
 
             # Eğer post edilen cevaplar içerisinde bu soru için cevap bulunamadıysa
             if i == 0:
+                # soru parçasını boş soru parçası listesine ekleyelim
+                empty_components = qr.add_empty_answer(test_unique=test_unique)
+                test_answer.empty_components.append(empty_components)
+
                 # boş soru sayısını bir artıralım
-                result['empty_questions'] = result['empty_questions'] + 1
-                # sorudaki soru parçaları için gerekli işlemleri yapalım
-                for question_component in question_components:
-                    # soru parçasını boş soru parçası listesine ekleyelim
-                    components['empty'].append(question_component)
+                test_answer.empty_question = test_answer.empty_question + 1
 
-                    # cevabı soru parçası istatistiklerine ekleyelim
-                    ComponentAnswerStat.objects.create(
-                        component_id=question_component,
-                        question_id=question.id,
-                        test_unique_id=test_unique.id,
-                        user_id=request.user.id,
-                        answer_is_true=0,
-                        answer_is_empty=1
-                    )
+            # question unique oluşturularım ve istatistikleri ekleyelim
+            qr.create_question_unique(answer_is_true)
 
-        true_sub_components = component_id_repo.all_sub_components(components['true'])
-
-        components['true'] = components['true'] + true_sub_components
-        components['all'] = components['all'] + true_sub_components
-
-        # sorulardaki soru parçalarını tekleştirelim.
-        all_components = list(set(itertools.chain(*components['all'])))
+        # sorulardaki soru parçalarını birleştirelim ve tekleştirelim.
+        all_components = test_answer.all_components()
 
         # veritabanından tekleştirilen soru parçalarına ait durum bilgilerini çekelim
         component_stats = ComponentStat.objects.filter(
@@ -278,19 +184,16 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             user=request.user
         ).values('id', 'component_id', 'component_status')
 
-        component_stat_repo = ComponentStatRepository(
+        component_stat_repo = ComponentsStatRepository(
             request=request,
             component_stats=component_stats,
-            components=components
+            answers=test_answer
         )
 
         for component in all_components:
             component_stat_repo.update_component_status(component)
 
-        test_result = math.ceil((result['true_questions'] / result['total_questions']) * 100)
-
-        if test_result > 100:
-            test_result = 100
+        test_result = test_answer.test_result()
 
         TestUnique.objects.filter(ids=test_unique.id).update(test_result=test_result)
 

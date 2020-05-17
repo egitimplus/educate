@@ -47,7 +47,6 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.U
     @action(methods=['GET'], detail=True)
     def components(self, request, pk=None):
         response = []
-        component_repo = ComponentRepository(request=request)
 
         queryset = Component.objects.prefetch_related('to_component','source_component').filter(edu_category_id=pk).all()
 
@@ -55,12 +54,20 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.U
             serialized_question = ComponentSerializer(query)
             item = serialized_question.data
 
-            all_components = component_repo.all_component_types(queryset=query,
-                                                                sub_components='list',
-                                                                all_sub_components='list',
-                                                                parent_components='list',
-                                                                all_components='list',
-                                                                data_components='dict')
+            cr = ComponentRepository(request=request, component=query)
+
+            cr.sub_components()
+            cr.all_sub_components()
+            cr.parent_components()
+
+            all_components = cr.component_formats(
+                sub_components='list',
+                all_sub_components='list',
+                parent_components='list',
+                all_components='list',
+                data_components='dict'
+            )
+
             item.update(all_components)
 
             response.append(item)
