@@ -1,12 +1,11 @@
 from rest_framework import permissions
-from companies.feeds import CompanyRepository
 from companies.models import School
 
 
 class ClassroomSchoolObjectPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
 
-        company_repo = CompanyRepository(request=request)
+        company_repo = Sc(request=request)
 
         school = School.objects.get(id=obj.school_id)
 

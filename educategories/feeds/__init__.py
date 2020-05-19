@@ -1,1 +1,1 @@
-from .educategory import EduCategoryRepository
+from .educategory import CategoryRepository

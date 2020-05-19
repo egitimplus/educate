@@ -1,5 +1,5 @@
-from educategories.feeds import EduCategoryRepository
-from collections import Iterable                            # < py38
+from educategories.models import EduCategory
+from collections import Iterable
 
 
 def flatten(items):
@@ -24,18 +24,26 @@ def get_breadcrumb(pk):
     """
     verilen kategori id sinden breadcrumb dictionary döndürür.
     """
-    edu_repo = EduCategoryRepository()
+    category = EduCategory.objects.values_list('id', 'name').filter(pk=pk).first()
 
-    return edu_repo.breadcrumb(pk)
+    return {
+        'id': category[0],
+        'name': category[1]
+    }
 
 
 def get_category(pk):
     """
     verilen kategori id sinden kategori bilgilerini döndürür.
     """
-    edu_repo = EduCategoryRepository()
+    category = EduCategory.objects.filter(pk=pk).first()
 
-    return edu_repo.detail(pk)
+    # breadcrumb oluşturalım
+    category_list = [category.lesson_id, category.subject_id, category.unit_id, category.id]
+    categories = EduCategory.objects.filter(id__in=category_list).order_by('depth').values('id', 'name',
+                                                                                           'parent_id', 'depth')
+    return categories
+
 
 
 def send_question_change_message_to_users(question, **kwargs):

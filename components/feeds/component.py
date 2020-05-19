@@ -76,7 +76,6 @@ class ComponentRepository:
                 self.all_parent_components()
 
     def data_component(self):
-
         self.sub_components()
         self.all_sub_components()
 
@@ -91,7 +90,6 @@ class ComponentRepository:
         return data
 
     def data_components(self):
-
         for component in self.queryset.source_component.all():
             self.queryset = component
             if search_id(component.id, self.data['data_components']):
