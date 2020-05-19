@@ -1,19 +1,13 @@
-from . import ComponentRepository
+from components.feeds import ComponentRepository
 from library.feeds import search_id
-from questions.models import QuestionAnswerStat
 
 
-class ComponentPartRepository:
-
-    def __init__(self, request, source):
-        self.source = source
-        self.request = request
-
+class ComponentMixin:
     # soruya ait 1. dereceden alt soru tiplerini alt elemanları ile döndürür
     def data_sub_components(self):
         data = []
 
-        for component in self.source.component.all():
+        for component in self.queryset.component.all():
             cr = ComponentRepository(request=self.request, component=component)
             cr.sub_components()
 
@@ -29,7 +23,7 @@ class ComponentPartRepository:
     def data_all_sub_components(self):
         data = []
 
-        for component in self.source.component.all():
+        for component in self.queryset.component.all():
             cr = ComponentRepository(request=self.request, component=component)
 
             sub = cr.data_component()
@@ -56,7 +50,7 @@ class ComponentPartRepository:
 
         all_components = []
 
-        for component in self.source.component.all():
+        for component in self.queryset.component.all():
 
             cr = ComponentRepository(
                 request=self.request,
@@ -99,7 +93,7 @@ class ComponentPartRepository:
 
         data = []
 
-        for component in self.source.component.all():
+        for component in self.queryset.component.all():
             cr = ComponentRepository(
                 request=self.request,
                 component=component,
@@ -123,7 +117,7 @@ class ComponentPartRepository:
 
         data = []
 
-        for component in self.source.component.all():
+        for component in self.queryset.component.all():
             cr = ComponentRepository(
                 request=self.request,
                 component=component,
@@ -154,11 +148,3 @@ class ComponentPartRepository:
                         data.append(sub_item)
 
         return data
-
-    # kullanıcılar soruyu daha önce çözmüş mü ?
-    def have_answer_stat(self):
-        have_answer = QuestionAnswerStat.objects.filter(question_id=self.source.id).exists()
-        if have_answer:
-            return True
-
-        return False

@@ -6,7 +6,7 @@ class ComponentRepository:
 
     def __init__(self, request, **kwargs):
         self.request = request
-        self.component = kwargs.pop("component", None)
+        self.queryset = kwargs.pop("component", None)
         self.counts = kwargs.pop("counts", None)
         self.status = kwargs.pop("status", None)
         self.data = {
@@ -20,9 +20,9 @@ class ComponentRepository:
     # soru parçası bilgileri
     def detail(self):
         data = {
-            'id': self.component.id,
-            'name': self.component.name,
-            'level': self.component.level
+            'id': self.queryset.id,
+            'name': self.queryset.name,
+            'level': self.queryset.level
         }
 
         if self.counts:
@@ -35,8 +35,8 @@ class ComponentRepository:
 
     # soru parçasına ait 1. dereceden alt soru parçaları
     def sub_components(self):
-        for item in self.component.source_component.all():
-            self.component = item
+        for item in self.queryset.source_component.all():
+            self.queryset = item
             if search_id(item.id, self.data['sub_components']):
                 continue
             else:
@@ -45,8 +45,8 @@ class ComponentRepository:
 
     # soru parçasının bulunduğu 1. dereceden üst soru parçaları
     def parent_components(self):
-        for item in self.component.to_component.all():
-            self.component = item
+        for item in self.queryset.to_component.all():
+            self.queryset = item
             if search_id(item.id, self.data['parent_components']):
                 continue
             else:
@@ -55,8 +55,8 @@ class ComponentRepository:
 
     # soru parçasına ait tüm alt soru parçaları
     def all_sub_components(self):
-        for item in self.component.source_component.all():
-            self.component = item
+        for item in self.queryset.source_component.all():
+            self.queryset = item
             if search_id(item.id, self.data['all_sub_components']):
                 continue
             else:
@@ -66,8 +66,8 @@ class ComponentRepository:
 
     # soru parçasının bulunduğu tüm üst soru parçaları
     def all_parent_components(self):
-        for item in self.component.to_component.all():
-            self.component = item
+        for item in self.queryset.to_component.all():
+            self.queryset = item
             if search_id(item.id, self.data['all_parent_components']):
                 continue
             else:
@@ -81,9 +81,9 @@ class ComponentRepository:
         self.all_sub_components()
 
         data = {
-            'id': self.component.id,
-            'name': self.component.name,
-            'level': self.component.level,
+            'id': self.queryset.id,
+            'name': self.queryset.name,
+            'level': self.queryset.level,
             'sub_components': self.component_format(self.data['sub_components'], 'list'),
             'all_sub_components': self.component_format(self.data['all_sub_components'], 'list')
         }
@@ -92,8 +92,8 @@ class ComponentRepository:
 
     def data_components(self):
 
-        for component in self.component.source_component.all():
-            self.component = component
+        for component in self.queryset.source_component.all():
+            self.queryset = component
             if search_id(component.id, self.data['data_components']):
                 continue
             else:
@@ -106,7 +106,7 @@ class ComponentRepository:
     # TODO Counts calısıyormu kontrol edilmeli
     def component_count(self):
         return ComponentAnswerStat.objects.filter(
-            component=self.component,
+            component=self.queryset,
             user=self.request.user
         ).count()
 
@@ -114,7 +114,7 @@ class ComponentRepository:
     # TODO Status calısıyormu kontrol edilmeli
     def component_status(self):
         component = ComponentStat.objects.filter(
-            component=self.component,
+            component=self.queryset,
             user=self.request.user
         ).first()
 

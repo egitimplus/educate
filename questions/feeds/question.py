@@ -1,22 +1,22 @@
 from questions.models import QuestionAnswerStat, QuestionUnique, QuestionUniqueStat
-from components.feeds import ComponentStatRepository
+from components.feeds import ComponentStatRepository, ComponentMixin
 
 
-class QuestionRepository:
+class QuestionRepository(ComponentMixin):
 
     def __init__(self, request, question):
         self.request = request
-        self.question = question
+        self.queryset = question
         self.components = self.get_components()
         self.unique = self.create_unique()
         self.code = self.create_code()
         self.true_answer = self.get_true_answer()
 
     def get_components(self):
-        return self.question.component.all()
+        return self.queryset.component.all()
 
     def get_true_answer(self):
-        return self.question.answers.filter(is_true_answer=1).first()
+        return self.queryset.answers.filter(is_true_answer=1).first()
 
     def create_unique(self):
         question_components_unique = list(self.components.values_list('id', flat=True))
@@ -35,7 +35,7 @@ class QuestionRepository:
 
             csr = ComponentStatRepository(request=self.request, component=component)
 
-            true_components = csr.add_true_answer(question=self.question, test_unique=test_unique,)
+            true_components = csr.add_true_answer(question=self.queryset, test_unique=test_unique,)
             c.append(component.id)
 
             for tc in true_components:
@@ -55,7 +55,7 @@ class QuestionRepository:
             )
 
             csr.add_false_answer(
-                question=self.question,
+                question=self.queryset,
                 test_unique=test_unique,
             )
 
@@ -76,7 +76,7 @@ class QuestionRepository:
             )
 
             csr.add_empty_answer(
-                question=self.question,
+                question=self.queryset,
                 test_unique=test_unique,
             )
 
@@ -95,7 +95,7 @@ class QuestionRepository:
             answer_is_true=answer_is_true,
             answer_seconds=0,
             answer_type=1,
-            question=self.question,
+            question=self.queryset,
             user=self.request.user,
             test_unique=test_unique,
             question_answer_id=question_answer_id,
@@ -123,6 +123,14 @@ class QuestionRepository:
                 "repeat": question_unique['repeat'],
             }
         )
+
+    # kullanıcılar soruyu daha önce çözmüş mü ?
+    def have_answer_stat(self):
+        have_answer = QuestionAnswerStat.objects.filter(question=self.queryset).exists()
+        if have_answer:
+            return True
+
+        return False
 
     """
     " Puan Hesaplama Kuralları

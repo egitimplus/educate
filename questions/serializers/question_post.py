@@ -174,7 +174,7 @@ class QuestionPostSerializer(serializers.ModelSerializer):
         # daha önceden bu soru için çözüm yapılmış mı
         # eğer çözüm var ise soru güncellemeye kapatılacak
         if self.instance:
-            question_repo = ComponentPartRepository([], self.instance)
+            question_repo = QuestionRepository([], self.instance)
 
             if question_repo.have_answer_stat():
                 raise serializers.ValidationError(

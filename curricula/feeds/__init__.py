@@ -1,1 +1,1 @@
-
+from .lecture import LectureRepository

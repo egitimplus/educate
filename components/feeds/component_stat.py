@@ -5,7 +5,7 @@ from . import ComponentRepository
 class ComponentStatRepository:
 
     def __init__(self, request, component):
-        self.component = component
+        self.queryset = component
         self.request = request
 
     def add_true_answer(self, **kwargs):
@@ -14,7 +14,7 @@ class ComponentStatRepository:
 
         # cevabı soru parçası istatistiklerine ekleyelim
         ComponentAnswerStat.objects.create(
-            component=self.component,
+            component=self.queryset,
             question=question,
             test_unique=test_unique,
             user=self.request.user,
@@ -22,7 +22,7 @@ class ComponentStatRepository:
             answer_is_empty=0
         )
 
-        cr = ComponentRepository(request=self.request, component=self.component)
+        cr = ComponentRepository(request=self.request, component=self.queryset)
 
         cr.all_sub_components()
 
@@ -46,7 +46,7 @@ class ComponentStatRepository:
 
         # cevabı soru parçası istatistiklerine ekleyelim
         ComponentAnswerStat.objects.create(
-            component=self.component,
+            component=self.queryset,
             question=question,
             test_unique=test_unique,
             user=self.request.user,
@@ -54,7 +54,7 @@ class ComponentStatRepository:
             answer_is_empty=0
         )
 
-        return self.component.id
+        return self.queryset.id
 
     def add_empty_answer(self, **kwargs):
         question = kwargs.pop("question", None)
@@ -62,7 +62,7 @@ class ComponentStatRepository:
 
         # cevabı soru parçası istatistiklerine ekleyelim
         ComponentAnswerStat.objects.create(
-            component=self.component,
+            component=self.queryset,
             question=question,
             test_unique=test_unique,
             user=self.request.user,
@@ -70,4 +70,4 @@ class ComponentStatRepository:
             answer_is_empty=1
         )
 
-        return self.component.id
+        return self.queryset.id

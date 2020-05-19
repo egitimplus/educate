@@ -3,9 +3,9 @@ from curricula.models import LearningLecture, LearningLectureStat
 from curricula.serializers import LearningLectureSerializer, LearningLecturePostSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from components.feeds import ComponentPartRepository
+from questions.feeds import QuestionRepository
 from django.db import transaction
-
+from curricula.feeds import LectureRepository
 
 class LearningLectureViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                             mixins.UpdateModelMixin, mixins.DestroyModelMixin,viewsets.GenericViewSet):
@@ -29,7 +29,7 @@ class LearningLectureViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, m
         serializer = LearningLectureSerializer(queryset, many=False, context={'request': request})
         response = serializer.data
 
-        lecture_repo = ComponentPartRepository(request, queryset)
+        lecture_repo = LectureRepository(request, queryset)
 
         response.update({
             'all_sub_components':  lecture_repo.all_sub_components(return_format='list'),

@@ -6,9 +6,9 @@ from rest_framework.decorators import action
 from questions.serializers import QuestionSerializer, QuestionPostSerializer
 from publishers.serializers import SourceQuestionSerializer
 from questions.models import Question, QuestionExam
-from components.feeds import ComponentPartRepository
 from components.models import ComponentAnswer
 from library.feeds import get_breadcrumb, get_category, send_question_change_message_to_users as send_message
+from questions.feeds import QuestionRepository, QuestionAnswerRepository
 
 
 class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.CreateModelMixin,
@@ -64,7 +64,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
 
         serialized_question = QuestionSerializer(queryset)
 
-        question_repo = ComponentPartRepository(request=request, question=queryset)
+        question_repo = QuestionRepository(request=request, question=queryset)
 
         all_components = question_repo.all_components()
 
@@ -88,7 +88,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'exam'
         ).first()
 
-        question_repo = ComponentPartRepository(request, queryset)
+        question_repo = QuestionRepository(request, queryset)
 
         source = SourceQuestionSerializer(queryset.source_questions, many=True)
 
@@ -104,7 +104,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
                     'component_ok': component_answer.component_ok
                 })
 
-            repo = ComponentPartRepository(request, answer)
+            repo = QuestionAnswerRepository(request, answer)
 
             answer_data = {
                 'id': answer.id,
@@ -181,7 +181,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        question_repo = ComponentPartRepository(request, instance)
+        question_repo = QuestionRepository(request, instance)
 
         if question_repo.have_answer_stat():
             # TODO sadece soruyu pasifleştirme yeterli mi ? Bunun üzerine düşünmek gerekli.

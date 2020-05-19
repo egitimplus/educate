@@ -7,7 +7,7 @@ class TestAnswerRepository:
 
     def __init__(self, request, test):
         self.request = request
-        self.test = test
+        self.queryset = test
         self.test_unique = self.create_test_answer()
 
         self.true_question = 0
@@ -22,7 +22,7 @@ class TestAnswerRepository:
     def create_test_answer(self):
         test_unique = TestUnique.objects.create(
             user_id=self.request.user.id,
-            test_id=self.test.id,
+            test_id=self.queryset.id,
             report='report',
             test_result=0
         )
