@@ -7,3 +7,11 @@ class ClassroomStudent(models.Model):
 
     class Meta:
         db_table = 'companies_classroom_student'
+        default_permissions = ()
+        permissions = (
+            ("list_classroom_students", "List Classroom Students"), # ClassroomViewSet@student_list
+            ("add_classroom_student", 'Attach Student to Classroom'), # ClassroomViewSet@attach_student
+            ("delete_classroom_student", 'Detach Student From Classroom'), # ClassroomViewSet@detach_student
+            ("view_classroom_student", "View Classroom Student"),  # ClassroomViewSet@
+
+        )

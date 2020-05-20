@@ -106,7 +106,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
 
         questions = test.questions()
 
-        test_answer.total_question = len(questions)
+        test_answer.counts['total'] = len(questions)
 
         for question in questions:
             qr = QuestionRepository(request=request, question=question)
@@ -123,8 +123,8 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
                     # Eğer post edilen cevap doğru ise
                     if question_answer_id == qr.true_answer.id:
                         true_components = qr.add_true_answer(test_unique=test_unique)
-                        test_answer.true_components.append(true_components)
-                        test_answer.true_question = test_answer.true_question + 1
+                        test_answer.components['true'].append(true_components)
+                        test_answer.counts['true'] = test_answer.counts['true'] + 1
                         # cevabı soru istatistiklerine ekleyelim
                         qr.add_question_answer(
                             test_unique=test_unique,
@@ -145,17 +145,17 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
                                 if component_answer.component_ok == 1:
                                     # soru parçasını doğru soru parçası listesine ekleyelim
                                     true_components = csr.add_true_answer(question=question, test_unique=test_unique)
-                                    test_answer.true_components.append(true_components)
+                                    test_answer.components['true'].append(true_components)
                                 else:
                                     # soru parçasını yanlış soru parçası listesine ekleyelim
                                     false_components = csr.add_false_answer(question=question, test_unique=test_unique)
-                                    test_answer.false_components.append(false_components)
+                                    test_answer.components['false'].append(false_components)
                         else:
                             # soru parçasını yanlış soru parçası listesine ekleyelim
                             false_components = qr.add_false_answer(test_unique=test_unique)
-                            test_answer.false_components.append(false_components)
+                            test_answer.components['false'].append(false_components)
 
-                        test_answer.false_question = test_answer.false_question + 1
+                        test_answer.counts['false'] = test_answer.counts['false'] + 1
                         # cevabı soru istatistiklerine ekleyelim
                         qr.add_question_answer(
                             test_unique=test_unique,
@@ -167,10 +167,10 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             if i == 0:
                 # soru parçasını boş soru parçası listesine ekleyelim
                 empty_components = qr.add_empty_answer(test_unique=test_unique)
-                test_answer.empty_components.append(empty_components)
+                test_answer.components['empty'].append(empty_components)
 
                 # boş soru sayısını bir artıralım
-                test_answer.empty_question = test_answer.empty_question + 1
+                test_answer.counts['empty'] = test_answer.counts['empty'] + 1
 
             # question unique oluşturularım ve istatistikleri ekleyelim
             qr.create_question_unique(answer_is_true)

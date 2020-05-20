@@ -26,11 +26,7 @@ class ClassroomPermissionMixin(object):
                 GlobalPermissions,
                 ClassroomSchoolObjectPermission
             ]
-        else:
-            permission_classes = [
-                IsAuthenticated,
-                GlobalPermissions
-            ]
+
         permission_classes = []
         return [permission() for permission in permission_classes]
 

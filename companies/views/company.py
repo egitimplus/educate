@@ -11,7 +11,6 @@ from companies.permissions import GroupPermissionMixin
 class CompanyGroupViewSet(GroupPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
                           mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
 
-
     queryset = CompanyGroup.objects.all()
     serializer_class = CompanyGroupSerializer
 

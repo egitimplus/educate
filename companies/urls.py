@@ -56,7 +56,6 @@ school_roles = SchoolViewSet.as_view({
     'post': 'update_roles',
 })
 
-
 lesson_list = LessonViewSet.as_view({
     'get': 'list',
     'post': 'create'
@@ -101,23 +100,18 @@ classroom_lesson = ClassroomViewSet.as_view({
 course = ClassroomViewSet.as_view({
     'get': 'course',
 })
-
 course_lesson = ClassroomViewSet.as_view({
     'get': 'course_lesson',
 })
-
 course_lecture_stat = ClassroomViewSet.as_view({
     'get': 'course_lecture_stat'
 })
-
 course_user = ClassroomViewSet.as_view({
     'get': 'course_user',
 })
-
 course_unit = ClassroomViewSet.as_view({
     'get': 'course_unit',
 })
-
 course_stat = ClassroomViewSet.as_view({
     'get': 'course_stat',
 })
@@ -125,6 +119,7 @@ course_stat = ClassroomViewSet.as_view({
 url_patterns = format_suffix_patterns([
     url(r'^school/$', school_list, name='school-list'),
     url(r'^school/(?P<pk>[0-9]+)/$', school_detail, name='school-detail'),
+    url(r'^school/(?P<pk>[0-9]+)/update_school/$', school_update, name='school-update'),
     url(r'^school/(?P<pk>[0-9]+)/manager/$', school_manager, name='school-manager'),
     url(r'^school/(?P<pk>[0-9]+)/teacher/$', school_teacher, name='school-teacher'),
     url(r'^school/(?P<pk>[0-9]+)/student/$', school_student, name='school-student'),
@@ -132,7 +127,6 @@ url_patterns = format_suffix_patterns([
     url(r'^school/(?P<pk>[0-9]+)/classroom_list/$', school_classroom, name='school-classroom'),
     url(r'^school/(?P<pk>[0-9]+)/lesson_list/$', school_lesson, name='school-lesson'),
     url(r'^school/(?P<pk>[0-9]+)/lesson_teacher/$', school_lesson_teacher, name='school-lesson-teacher'),
-    url(r'^school/(?P<pk>[0-9]+)/update_school/$', school_update, name='school-update'),
     url(r'^school/(?P<pk>[0-9]+)/update_roles/$', school_roles, name='school-update-roles'),
 
     url(r'^classroom/$', classroom_list, name='classroom-list'),

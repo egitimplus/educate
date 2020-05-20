@@ -26,29 +26,14 @@ class School(Company):
         default_permissions = ()
         permissions = (
             ("super_school", "Super school"),  # SchoolViewSet@all
+            ("list_schools", "List school"),  # SchoolViewSet@list
+            ("view_school", "View school"),  # SchoolViewSet@retrieve
             ("add_school", "Add school"),  # SchoolViewSet@create
             ("change_school", "Update school"),  # SchoolViewSet@update
             ("update_school", "Update school"),  # SchoolViewSet@update_school
             ("delete_school", "Delete school"),  # SchoolViewSet@destroy
-            ("view_school", "View school"),  # SchoolViewSet@retrieve
-            ("list_schools", "List school"),  # SchoolViewSet@list
             ("list_school_classrooms", "View school classroom list"),  # SchoolViewSet@classroom_list
             ("list_school_lessons", "List school lessons"),  # SchoolViewSet@lesson_list
-            ("list_school_lesson_teachers", "List school lesson teachers"),  # SchoolViewSet@lesson_teacher_list
-            ("filter_school_lesson_teachers", "List school lesson teachers"), # SchoolViewSet@lesson_teacher_filter_list
-            ("add_school_manager", 'Attach manager to school'),  # SchoolViewSet@attach_manager
-            ("delete_school_manager", 'Detach manager from school'),  # SchoolViewSet@detach_manager
-            ("list_school_managers","List school managers"),  # SchoolViewSet@manager_list
-            ("add_school_student", 'Attach student to school'),  # SchoolViewSet@attach_student
-            ("delete_school_student", 'Detach student from school'),  # SchoolViewSet@detach_student
-            ("list_school_students", "List school students"),  # SchoolViewSet@student_list
-            ("add_school_teacher", 'Attach teacher to school'),  # SchoolViewSet@attach_teacher
-            ("delete_school_teacher", 'Detach teacher from school'),  # SchoolViewSet@detach_teacher
-            ("list_school_teachers", "List school teachers"),  # SchoolViewSet@teacher_list
-            ("add_school_user", 'Attach user to school'), # SchoolViewSet@attach_user
-            ("delete_school_user", 'Detach user from school'),  # SchoolViewSet@detach_user
-            ("list_school_users", "List school users"),  # SchoolViewSet@user_list
-            ("list_school_tests", "List school tests"),  # SchoolViewSet@test_list
             ("update_school_roles", "Update school roles")  # SchoolViewSet@update_roles
         )
 

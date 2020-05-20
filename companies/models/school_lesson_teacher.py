@@ -13,6 +13,11 @@ class SchoolLessonTeacher(models.Model):
 
     class Meta:
         db_table = 'companies_school_lesson_teacher'
+        default_permissions = ()
+        permissions = (
+            ("list_school_lesson_teachers", "List school lesson teachers"),  # SchoolViewSet@lesson_teacher_list
+            ("filter_school_lesson_teachers", "List school lesson teachers"), # SchoolViewSet@lesson_teacher_filter_list
+        )
 
     def __str__(self):
         return self.name

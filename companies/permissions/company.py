@@ -23,11 +23,7 @@ class GroupPermissionMixin(object):
                 IsAdminUser,
                 GlobalPermissions,
             ]
-        else:
-            permission_classes = [
-                IsAuthenticated,
-                GlobalPermissions
-            ]
+
         permission_classes = []
         return [permission() for permission in permission_classes]
 

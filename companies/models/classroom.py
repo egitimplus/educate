@@ -28,21 +28,8 @@ class Classroom(models.Model):
             ("view_classroom", "View Classroom"), # ClassroomViewSet@retrieve
             ("add_classroom", "Add Classroom"), # ClassroomViewSet@create
             ("change_classroom", "Update Classroom"), # ClassroomViewSet@update
-            ("delete_classroom", "Delete Classroom"), # ClassroomViewSet@destroy
+            ("delete_classroom", "Remove Classroom"), # ClassroomViewSet@destroy
             ("list_classrooms", "List Classroom"), # ClassroomViewSet@list
-            ("list_classroom_students", "List Classroom Students"), # ClassroomViewSet@student_list
-            ("add_classroom_student", 'Attach Student to Classroom'), # ClassroomViewSet@attach_student
-            ("remove_classroom_student", 'Detach Student From Classroom'), # ClassroomViewSet@detach_student
-            ("list_classroom_teachers", "List Classroom Teachers"), # ClassroomViewSet@teacher_list
-            ("add_classroom_teacher", 'Attach Teacher to Classroom'), # ClassroomViewSet@attach_teacher
-            ("remove_classroom_teacher", 'Detach Teacher From Classroom'), # ClassroomViewSet@detach_teacher
-            ("add_classroom_lesson", "Attach Lesson to Classroom "), # ClassroomViewSet@attach_lesson
-            ("delete_classroom_lesson", "Detach Lesson From Classroom"), # ClassroomViewSet@detach_lesson
-            ("view_classroom_teacher", "View Classroom Teacher"),  # ClassroomViewSet@
-            ("view_classroom_student", "View Classroom Student"),  # ClassroomViewSet@
-            ("change_classroom_lesson", "Change Classroom Lesson"), # ClassroomViewSet@
-            ("view_classroom_lesson", "View Classroom Lesson"), # ClassroomViewSet@
-            ("list_classroom_lessons", "List Classroom Lesson") # ClassroomViewSet@
         )
 
     def __str__(self):

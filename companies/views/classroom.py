@@ -1,7 +1,7 @@
 from rest_framework import viewsets, mixins, status
 from companies.models import Classroom, SchoolStudent, SchoolTeacher, SchoolLessonTeacher, ClassroomLesson, ClassroomTeacher, ClassroomStudent
 from companies.serializers import ClassroomSerializer
-from curricula.serializers import LearningLectureStatSerializer, LearningUnitSimpleSerializer, LearningUnitSerializerWithSubjects, LearningSubjectSerializer
+from curricula.serializers import LearningLectureStatSerializer, LearningUnitSerializerWithSubjects, LearningSubjectSerializer
 from companies.permissions import ClassroomPermissionMixin
 from rest_framework.response import Response
 from curricula.models import LearningSubject, LearningUnit, LearningLectureStat
@@ -200,7 +200,11 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
     def course(self, request, pk=None):
         self.get_object()
 
-        queryset = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units__component').filter(classroom_id=pk).all()
+        queryset = ClassroomLesson.objects.select_related(
+            'lesson__lesson__curricula'
+        ).prefetch_related(
+            'lesson__lesson__curricula__units__component'
+        ).filter(classroom_id=pk).all()
 
         response = []
         item = {}
@@ -242,7 +246,12 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
     # seçilmiş olan dersin ünite ve konularını listeler
     def course_lesson(self, request, pk=None):
 
-        row = ClassroomLesson.objects.select_related('lesson__lesson__curricula').prefetch_related('lesson__lesson__curricula__units').filter(pk=pk).first()
+        row = ClassroomLesson.objects.select_related(
+            'lesson__lesson__curricula'
+        ).prefetch_related(
+            'lesson__lesson__curricula__units'
+        ).filter(pk=pk).first()
+
         unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
 
         response = {
@@ -285,6 +294,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
 
         return Response(ids)
 
+    # lecture okundu olarak düzenler
     def course_lecture_stat(self, request, pk=None):
 
         obj, created = LearningLectureStat.objects.update_or_create(
@@ -296,6 +306,7 @@ class ClassroomViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, mixins.R
         serializer = LearningLectureStatSerializer(obj, many=False)
         return Response({'data': serializer.data})
 
+    # kurs soru parçalarının istatistikleri
     def course_stat(self, request, pk=None):
         queryset = ClassroomLesson.objects.prefetch_related('lesson__lesson__curricula__units__component').filter(classroom_id=pk).all()
 

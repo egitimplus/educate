@@ -7,3 +7,9 @@ class SchoolManager(models.Model):
 
     class Meta:
         db_table = 'companies_school_manager'
+        default_permissions = ()
+        permissions = (
+            ("add_school_manager", 'Attach manager to school'),  # SchoolViewSet@attach_manager
+            ("delete_school_manager", 'Detach manager from school'),  # SchoolViewSet@detach_manager
+            ("list_school_managers","List school managers"),  # SchoolViewSet@manager_list
+        )

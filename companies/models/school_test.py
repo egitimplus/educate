@@ -7,5 +7,8 @@ class SchoolTest(models.Model):
 
     class Meta:
         db_table = 'companies_school_test'
-
+        default_permissions = ()
+        permissions = (
+            ("list_school_tests", "List school tests"),  # SchoolViewSet@test_list
+        )
 

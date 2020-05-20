@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 
 @receiver(post_save, sender=ClassroomLesson)
 def add_classroom_lesson_role(sender, instance, **kwargs):
-    # Sınıfa ders eklenmeden önce (pre_save)
     model = ContentType.objects.get_for_model(ClassroomLesson)
     model_id = model.id
 
