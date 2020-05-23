@@ -64,7 +64,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
 
         serialized_question = QuestionSerializer(queryset)
 
-        question_repo = QuestionRepository(request=request, question=queryset)
+        question_repo = QuestionRepository(request=request, question=queryset, prepare=False)
 
         all_components = question_repo.all_components()
 
@@ -88,7 +88,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'exam'
         ).first()
 
-        question_repo = QuestionRepository(request, queryset)
+        question_repo = QuestionRepository(request, queryset, prepare=False)
 
         source = SourceQuestionSerializer(queryset.source_questions, many=True)
 
@@ -181,7 +181,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        question_repo = QuestionRepository(request, instance)
+        question_repo = QuestionRepository(request=request, question=instance, prepare=False)
 
         if question_repo.have_answer_stat():
             # TODO sadece soruyu pasifleştirme yeterli mi ? Bunun üzerine düşünmek gerekli.

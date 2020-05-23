@@ -7,12 +7,11 @@ from companies.permissions import *
 from django.contrib.auth import get_user_model
 from library.feeds import DisableSignals
 
-
 User = get_user_model()
 
 
 class SchoolViewSet(SchoolPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                    mixins.UpdateModelMixin, viewsets.GenericViewSet):
+                    mixins.UpdateModelMixin, viewsets.GenericViewSet, mixins.DestroyModelMixin):
 
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
@@ -36,14 +35,6 @@ class SchoolViewSet(SchoolPermissionMixin, mixins.ListModelMixin, mixins.Retriev
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
-
-    # okul siler
-    def destroy(self, request, *args, **kwargs):
-        # TODO okul silindiğinde okul ile ilgili kullanıcılara ait tüm bilgiler de silinir.
-        # TODO bunun uyarısını yapmak gerekli. Hatta güvenlik kodu gibi birşey olmalı.
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     # okula bağlı sınıfları listeler
     def classroom_list(self, request, pk=None):

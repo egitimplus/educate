@@ -3,9 +3,9 @@ from curricula.models import LearningLecture, LearningLectureStat
 from curricula.serializers import LearningLectureSerializer, LearningLecturePostSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from questions.feeds import QuestionRepository
 from django.db import transaction
 from curricula.feeds import LectureRepository
+
 
 class LearningLectureViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                             mixins.UpdateModelMixin, mixins.DestroyModelMixin,viewsets.GenericViewSet):

@@ -14,15 +14,15 @@ class Lesson(models.Model):
     class Meta:
         default_permissions = ()
         permissions = (
-            ("super_lesson", "List lesson"), # LessonViewSet@all
-            ("add_lesson", "List lesson"), # LessonViewSet@create
-            ("change_lesson", "List lesson"), # LessonViewSet@update
-            ("delete_lesson", "List lesson"), # LessonViewSet@destroy
+            ("super_lesson", "All lesson"), # LessonViewSet@all
+            ("add_lesson", "Add lesson"), # LessonViewSet@create
+            ("change_lesson", "Update lesson"), # LessonViewSet@update
+            ("delete_lesson", "Delete lesson"), # LessonViewSet@destroy
             ("list_lessons", "List lesson"), # LessonViewSet@list
-            ("view_lesson", "List lesson"), # LessonViewSet@retrieve
+            ("view_lesson", "View lesson"), # LessonViewSet@retrieve
             ("attach_lesson_teacher", 'Add lesson teacher'), # LessonViewSet@attach_lesson_teacher
             ("detach_lesson_teacher", 'Detach lesson teacher'), # LessonViewSet@detach_lesson_teacher
-            ("update_lesson_classroom", 'Update lesson teacher'), # LessonViewSet@update_lesson_teacher
+            ("update_lesson_teacher", 'Update lesson teacher'), # LessonViewSet@update_lesson_teacher
             ("list_lesson_teacher", 'List lesson teachers') # LessonViewSet@list_lesson_teacher
         )
 

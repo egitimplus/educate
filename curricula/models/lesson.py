@@ -25,7 +25,7 @@ class LearningLesson(models.Model):
         default_permissions = ()
         permissions = (
             ("view_learninglesson", "View learning lesson"),
-            ("list_learnin glesson", "List learning lesson")
+            ("list_learninglesson", "List learning lesson")
         )
 
     def save(self, force_insert=False, force_update=False, using=None):

@@ -6,6 +6,7 @@ from components.models import Component, ComponentAnswer
 from educategories.models import EduCategory
 from library.models import Exam
 from questions.serializers import QuestionAnswerPostSerializer
+from questions.feeds import QuestionRepository
 
 
 class QuestionPostSerializer(serializers.ModelSerializer):
@@ -174,7 +175,7 @@ class QuestionPostSerializer(serializers.ModelSerializer):
         # daha önceden bu soru için çözüm yapılmış mı
         # eğer çözüm var ise soru güncellemeye kapatılacak
         if self.instance:
-            question_repo = QuestionRepository([], self.instance)
+            question_repo = QuestionRepository(request=[], question=self.instance, prepare=False)
 
             if question_repo.have_answer_stat():
                 raise serializers.ValidationError(
@@ -260,7 +261,8 @@ class QuestionPostSerializer(serializers.ModelSerializer):
             instance.component.add(add_component)
 
         # benzersiz soruları ekleyelim
-        question_code = str(sorted(components))
+        question_code = '-'.join(map(str, sorted(components)))
+
         question_unique = QuestionUnique.objects.filter(question_code=question_code).first()
 
         if question_unique:

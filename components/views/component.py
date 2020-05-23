@@ -40,6 +40,33 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
 
         return Response(response)
 
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        serializer = ComponentPostSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ComponentPostSerializer(instance, data=request.data, partial=False)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(methods=['GET'], detail=True)
     def user_detail(self, request, pk=None):
 
@@ -116,29 +143,3 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
         categories = get_breadcrumb(question)
         return Response(categories)
 
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        serializer = ComponentPostSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = ComponentPostSerializer(instance, data=request.data, partial=False)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
-
-        return Response(serializer.data)
-
-    @transaction.atomic
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

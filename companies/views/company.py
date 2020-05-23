@@ -9,18 +9,11 @@ from companies.permissions import GroupPermissionMixin
 
 
 class CompanyGroupViewSet(GroupPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
-                          mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+                          mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+                          viewsets.GenericViewSet):
 
     queryset = CompanyGroup.objects.all()
     serializer_class = CompanyGroupSerializer
-
-    # grup siler
-    def destroy(self, request, *args, **kwargs):
-        # TODO İlgili tüm bilgiler silinir.
-        # TODO bunun uyarısını yapmak gerekli. Hatta güvenlik kodu gibi birşey olmalı.
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     # gruba bağlı okul listesi
     @action(methods=['GET'], detail=True)

@@ -8,12 +8,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from educategories.serializers import EduCategorySimpleSerializer
 from questions.serializers import QuestionSerializer
-from questions.models import QuestionAnswerStat, QuestionUnique, QuestionUniqueStat
-from components.models import ComponentAnswerStat, ComponentStat, ComponentAnswer
+from components.models import ComponentStat, ComponentAnswer
 from questions.feeds import QuestionRepository
-from components.feeds import ComponentStatRepository, ComponentsStatRepository, ComponentRepository
+from components.feeds import ComponentStatRepository, ComponentsStatRepository
 from tests.feeds import TestRepository
-import itertools
 
 
 class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -109,7 +107,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         test_answer.counts['total'] = len(questions)
 
         for question in questions:
-            qr = QuestionRepository(request=request, question=question)
+            qr = QuestionRepository(request=request, question=question, prepare=True)
 
             i = 0
             answer_is_true = 0

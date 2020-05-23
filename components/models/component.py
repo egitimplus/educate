@@ -26,6 +26,7 @@ class Component(models.Model):
             ("add_component", ""), # ComponentViewSet@create
             ("change_component", ""), # ComponentViewSet@update
             ("delete_component", ""), # ComponentViewSet@destroy
+            ("list_components", ""), # ComponentViewSet@list
             ("user_detail_component", ""), # ComponentViewSet@user_detail
             ("search_component", ""), # ComponentViewSet@search
             ("parents_component", "") # ComponentViewSet@parents

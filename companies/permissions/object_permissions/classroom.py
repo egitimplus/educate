@@ -9,7 +9,7 @@ class ClassroomObjectPermission(permissions.BasePermission):
         school = School.objects.get(id=obj.school_id)
 
         sr = SchoolRepository(request=request, school=school)
-        group_manager = sr.group_manager_id(school.group_id)
+        group_manager = sr.group_manager_id()
 
         if group_manager == request.user.id:
             return True

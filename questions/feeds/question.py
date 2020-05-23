@@ -4,12 +4,19 @@ from components.feeds import ComponentStatRepository, ComponentMixin
 
 class QuestionRepository(ComponentMixin):
 
-    def __init__(self, request, question):
+    def __init__(self, request, question, prepare=False):
         self.request = request
         self.queryset = question
+        self.components = None
+        self.code = None
+        self.true_answer = None
+
+        if prepare:
+            self.prepare_question()
+
+    def prepare_question(self):
         self.components = self.get_components()
-        self.unique = self.create_unique()
-        self.code = self.create_code()
+        self.code = self.create_unique()
         self.true_answer = self.get_true_answer()
 
     def get_components(self):
@@ -19,13 +26,12 @@ class QuestionRepository(ComponentMixin):
         return self.queryset.answers.filter(is_true_answer=1).first()
 
     def create_unique(self):
-        question_components_unique = list(self.components.values_list('id', flat=True))
-        question_components_unique.sort()
+        if self.components is None:
+            self.prepare_answer()
 
-        return question_components_unique
+        unique = sorted(set(self.components.values_list('id', flat=True)))
 
-    def create_code(self):
-        return '-'.join(map(str, self.unique))
+        return '-'.join(map(str, unique))
 
     def add_true_answer(self, **kwargs):
         test_unique = kwargs.pop("test_unique", None)
@@ -103,6 +109,10 @@ class QuestionRepository(ComponentMixin):
         )
 
     def create_question_unique(self, answer_is_true):
+
+        if self.code is None:
+            self.prepare_question()
+
         # soru unique kodunu veritabanında varsa güncelleyelim eğer yoksa ekleyelim
         obj, created = QuestionUnique.objects.get_or_create(question_code=self.code)
 

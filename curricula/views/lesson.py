@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 
 
 class LearningLessonViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                            mixins.UpdateModelMixin, mixins.DestroyModelMixin,viewsets.GenericViewSet):
+                            mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = LearningLesson.objects.all()
     serializer_class = LearningLessonSerializer

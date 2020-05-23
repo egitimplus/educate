@@ -6,20 +6,10 @@ from rest_framework.response import Response
 
 
 class LessonViewSet(LessonPermissionMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                    mixins.UpdateModelMixin, viewsets.GenericViewSet):
+                    mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-
-
-    # dersi siler
-    def destroy(self, request, *args, **kwargs):
-        # TODO ÇOK ÖNEMLİ!
-        # TODO Ders silindiğinde o dersin kullanıldığı tüm sınıflardaki bilgiler silinir.
-        # TODO Bu nedenle ders silinmeden önce daha önce başka bir yere ekleme yapılıp, yapılmadığına bakılmalı.
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     # okuldaki derse öğretmen ekler
     def attach_lesson_teacher(self, request, pk=None):

@@ -1,5 +1,6 @@
 from companies.models import CompanyGroup
 
+
 class SchoolRepository:
 
     def __init__(self, request, school):
