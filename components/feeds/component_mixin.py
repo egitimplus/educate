@@ -7,8 +7,8 @@ class ComponentMixin:
     def data_sub_components(self):
         data = []
 
-        for component in self.queryset.component.all():
-            cr = ComponentRepository(request=self.request, component=component)
+        for component in self._queryset.component.all():
+            cr = ComponentRepository(request=self._request, component=component)
             cr.sub_components()
 
             data = cr.component_formats(
@@ -23,8 +23,8 @@ class ComponentMixin:
     def data_all_sub_components(self):
         data = []
 
-        for component in self.queryset.component.all():
-            cr = ComponentRepository(request=self.request, component=component)
+        for component in self._queryset.component.all():
+            cr = ComponentRepository(request=self._request, component=component)
 
             sub = cr.data_component()
             cr.data_components()
@@ -50,10 +50,10 @@ class ComponentMixin:
 
         all_components = []
 
-        for component in self.queryset.component.all():
+        for component in self._queryset.component.all():
 
             cr = ComponentRepository(
-                request=self.request,
+                request=self._request,
                 component=component,
                 counts=counts,
                 status=status
@@ -93,9 +93,9 @@ class ComponentMixin:
 
         data = []
 
-        for component in self.queryset.component.all():
+        for component in self._queryset.component.all():
             cr = ComponentRepository(
-                request=self.request,
+                request=self._request,
                 component=component,
                 counts=counts,
                 status=status
@@ -117,9 +117,9 @@ class ComponentMixin:
 
         data = []
 
-        for component in self.queryset.component.all():
+        for component in self._queryset.component.all():
             cr = ComponentRepository(
-                request=self.request,
+                request=self._request,
                 component=component,
                 counts=counts,
                 status=status

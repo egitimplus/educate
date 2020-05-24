@@ -8,9 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from educategories.serializers import EduCategorySimpleSerializer
 from questions.serializers import QuestionSerializer
-from components.models import ComponentStat, ComponentAnswer
-from questions.feeds import QuestionRepository
-from components.feeds import ComponentStatRepository
+from components.models import ComponentStat
 from tests.feeds import TestRepository
 
 
@@ -101,7 +99,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
 
         test_answer = test.answer()
 
-        test_answer.set_answers(answers)
+        test_answer.answers = answers
         test_unique = test_answer.test_unique
 
         # sorulardaki soru parçalarını birleştirelim ve tekleştirelim.
@@ -113,7 +111,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             user=request.user
         ).values('id', 'component_id', 'component_status')
 
-        test_answer.set_component_stats(component_stats)
+        test_answer.component_stats = component_stats
 
         for component in all_components:
             test_answer.update_component_status(component)

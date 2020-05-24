@@ -1,27 +1,25 @@
-from components.feeds import ComponentStatRepository
-from questions.models import QuestionAnswerStat
-from questions.models import QuestionUnique, QuestionUniqueStat
+from questions.models import QuestionUniqueStat
 
 
 class QuestionUniqueRepository:
 
     def __init__(self, request, **kwargs):
-        self.request = request
-        self.question = kwargs.pop("question", None)
-        self.queryset = kwargs.pop("question_unique", None)
-        self.test_unique = kwargs.pop("test_unique", None)
+        self._request = request
+        self._question = kwargs.pop("question", None)
+        self._queryset = kwargs.pop("question_unique", None)
+        self._test_unique = kwargs.pop("test_unique", None)
 
     def update_stats(self, answer_is_true):
 
-        question_unique_stat = QuestionUniqueStat.objects.filter(id=self.queryset.id).first()
+        question_unique_stat = QuestionUniqueStat.objects.filter(id=self._queryset.id).first()
 
         # verilen cevaba göre soru için yeni bir kod oluşturalım
         question_unique = self.status(question_unique_stat, answer_is_true)
 
         # unique soru istatistiklerini ekleyelim
         QuestionUniqueStat.objects.update_or_create(
-            question_unique_id=self.queryset.id,
-            user=self.request.user,
+            question_unique_id=self._queryset.id,
+            user=self._request.user,
             defaults={
                 "status": question_unique['status'],
                 "percent": question_unique['percent'],

@@ -5,11 +5,11 @@ from . import ComponentRepository
 class ComponentStatRepository:
 
     def __init__(self, request, **kwargs):
-        self.request = request
+        self._request = request
 
-        self.queryset = kwargs.pop("component", None)
-        self.question = kwargs.pop("question", None)
-        self.test_unique = kwargs.pop("test_unique", None)
+        self._queryset = kwargs.pop("component", None)
+        self._question = kwargs.pop("question", None)
+        self._test_unique = kwargs.pop("test_unique", None)
 
     def add_answer(self, component, answer):
 
@@ -26,9 +26,9 @@ class ComponentStatRepository:
         # cevabı soru parçası istatistiklerine ekleyelim
         ComponentAnswerStat.objects.create(
             component=component,
-            question=self.question,
-            test_unique=self.test_unique,
-            user=self.request.user,
+            question=self._question,
+            test_unique=self._test_unique,
+            user=self._request.user,
             answer_is_true=answer_is_true,
             answer_is_empty=answer_is_empty
         )
@@ -36,9 +36,9 @@ class ComponentStatRepository:
     def add_true_answer(self):
 
         # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self.queryset, 'true')
+        self.add_answer(self._queryset, 'true')
 
-        cr = ComponentRepository(request=self.request, component=self.queryset)
+        cr = ComponentRepository(request=self._request, component=self._queryset)
 
         cr.all_sub_components()
 
@@ -51,8 +51,8 @@ class ComponentStatRepository:
 
     def add_false_answer(self):
         # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self.queryset, 'false')
+        self.add_answer(self._queryset, 'false')
 
     def add_empty_answer(self):
         # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self.queryset, 'true')
+        self.add_answer(self._queryset, 'true')

@@ -1,70 +1,70 @@
 from components.feeds import ComponentStatRepository
-from questions.models import QuestionAnswerStat
 
 
 class QuestionStatRepository:
 
     def __init__(self, request, **kwargs):
-        self.request = request
-        self.question = kwargs.pop("question", None)
-        self.test_unique = kwargs.pop("test_unique", None)
+        self._request = request
+        self._question = kwargs.pop("question", None)
+        self._components = kwargs.pop("components", None)
+        self._test_unique = kwargs.pop("test_unique", None)
 
     def add_true(self):
-        c = list()
+        components = list()
 
-        for component in self.components:
+        for component in self._components:
 
             csr = ComponentStatRepository(
-                request=self.request,
+                request=self._request,
                 component=component,
-                question=self.question,
-                test_unique=self.test_unique
+                question=self._question,
+                test_unique=self._test_unique
             )
 
             true_components = csr.add_true_answer()
-            c.append(component.id)
+            components.append(component.id)
 
-            for tc in true_components:
-                c.append(tc)
+            for true_component in true_components:
+                components.append(true_component)
 
-        return c
+        return components
 
     def add_false(self):
-        c = list()
+        components = list()
 
-        for component in self.components:
+        for component in self._components:
 
             csr = ComponentStatRepository(
-                request=self.request,
+                request=self._request,
                 component=component,
-                question=self.question,
-                test_unique=self.test_unique
+                question=self._question,
+                test_unique=self._test_unique
             )
 
             csr.add_false_answer()
 
             # soru parçasını doğru soru parçası listesine ekleyelim
-            c.append(component.id)
+            components.append(component.id)
 
-        return c
+        return components
 
     def add_empty(self):
-        c = list()
+        components = list()
 
-        for component in self.components:
+        for component in self._components:
 
             csr = ComponentStatRepository(
-                request=self.request,
+                request=self._request,
                 component=component,
-                question=self.question,
-                test_unique=self.test_unique
+                question=self._question,
+                test_unique=self._test_unique
             )
 
             csr.add_empty_answer()
 
             # soru parçasını doğru soru parçası listesine ekleyelim
-            c.append(component.id)
+            components.append(component.id)
 
-        return c
+        return components
 
 

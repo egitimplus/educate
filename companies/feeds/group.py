@@ -2,8 +2,8 @@
 class GroupRepository:
 
     def __init__(self, request, group):
-        self.request = request
-        self.queryset = group
+        self._request = request
+        self._queryset = group
 
 
 

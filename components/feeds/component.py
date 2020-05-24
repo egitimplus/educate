@@ -5,12 +5,12 @@ from library.feeds import search_id
 class ComponentRepository:
 
     def __init__(self, request, **kwargs):
-        self.request = request
-        self.queryset = kwargs.pop("component", None)
-        self.counts = kwargs.pop("counts", None)
-        self.status = kwargs.pop("status", None)
+        self._request = request
+        self._queryset = kwargs.pop("component", None)
+        self._counts = kwargs.pop("counts", None)
+        self._status = kwargs.pop("status", None)
 
-        self.data = {
+        self._data = {
             'sub_components': [],
             'all_sub_components': [],
             'parent_components': [],
@@ -21,59 +21,59 @@ class ComponentRepository:
     # soru parçası bilgileri
     def detail(self):
         data = {
-            'id': self.queryset.id,
-            'name': self.queryset.name,
-            'level': self.queryset.level
+            'id': self._queryset.id,
+            'name': self._queryset.name,
+            'level': self._queryset.level
         }
 
-        if self.counts:
+        if self._counts:
             data['counts'] = self.component_count()
 
-        if self.status:
+        if self._status:
             data['status'] = self.component_status()
 
         return data
 
     # soru parçasına ait 1. dereceden alt soru parçaları
     def sub_components(self):
-        for item in self.queryset.source_component.all():
-            self.queryset = item
-            if search_id(item.id, self.data['sub_components']):
+        for item in self._queryset.source_component.all():
+            self._queryset = item
+            if search_id(item.id, self._data['sub_components']):
                 continue
             else:
                 child = self.detail()
-                self.data['sub_components'].append(child)
+                self._data['sub_components'].append(child)
 
     # soru parçasının bulunduğu 1. dereceden üst soru parçaları
     def parent_components(self):
-        for item in self.queryset.to_component.all():
-            self.queryset = item
-            if search_id(item.id, self.data['parent_components']):
+        for item in self._queryset.to_component.all():
+            self._queryset = item
+            if search_id(item.id, self._data['parent_components']):
                 continue
             else:
                 child = self.detail()
-                self.data['parent_components'].append(child)
+                self._data['parent_components'].append(child)
 
     # soru parçasına ait tüm alt soru parçaları
     def all_sub_components(self):
-        for item in self.queryset.source_component.all():
-            self.queryset = item
-            if search_id(item.id, self.data['all_sub_components']):
+        for item in self._queryset.source_component.all():
+            self._queryset = item
+            if search_id(item.id, self._data['all_sub_components']):
                 continue
             else:
                 child = self.detail()
-                self.data['all_sub_components'].append(child)
+                self._data['all_sub_components'].append(child)
                 self.all_sub_components()
 
     # soru parçasının bulunduğu tüm üst soru parçaları
     def all_parent_components(self):
-        for item in self.queryset.to_component.all():
-            self.queryset = item
-            if search_id(item.id, self.data['all_parent_components']):
+        for item in self._queryset.to_component.all():
+            self._queryset = item
+            if search_id(item.id, self._data['all_parent_components']):
                 continue
             else:
                 child = self.detail()
-                self.data['all_parent_components'].append(child)
+                self._data['all_parent_components'].append(child)
                 self.all_parent_components()
 
     def data_component(self):
@@ -81,40 +81,40 @@ class ComponentRepository:
         self.all_sub_components()
 
         data = {
-            'id': self.queryset.id,
-            'name': self.queryset.name,
-            'level': self.queryset.level,
-            'sub_components': self.component_format(self.data['sub_components'], 'list'),
-            'all_sub_components': self.component_format(self.data['all_sub_components'], 'list')
+            'id': self._queryset.id,
+            'name': self._queryset.name,
+            'level': self._queryset.level,
+            'sub_components': self.component_format(self._data['sub_components'], 'list'),
+            'all_sub_components': self.component_format(self._data['all_sub_components'], 'list')
         }
 
         return data
 
     def data_components(self):
-        for component in self.queryset.source_component.all():
-            self.queryset = component
-            if search_id(component.id, self.data['data_components']):
+        for component in self._queryset.source_component.all():
+            self._queryset = component
+            if search_id(component.id, self._data['data_components']):
                 continue
             else:
 
                 child = self.data_component()
-                self.data['data_components'].append(child)
+                self._data['data_components'].append(child)
                 self.data_components()
 
     # kullanıcı tarafından o soru parçası için cevaplanan adet
     # TODO Counts calısıyormu kontrol edilmeli
     def component_count(self):
         return ComponentAnswerStat.objects.filter(
-            component=self.queryset,
-            user=self.request.user
+            component=self._queryset,
+            user=self._request.user
         ).count()
 
     # kullanıcının o soru parçası için durumu
     # TODO Status calısıyormu kontrol edilmeli
     def component_status(self):
         component = ComponentStat.objects.filter(
-            component=self.queryset,
-            user=self.request.user
+            component=self._queryset,
+            user=self._request.user
         ).first()
 
         if not component:
@@ -138,9 +138,9 @@ class ComponentRepository:
         for key, value in kwargs.items():
             if value is not None:
                 if key == 'all_components':
-                    self.data['all_components'] = self.data['all_sub_components'] + self.data['parent_components']
+                    self._data['all_components'] = self._data['all_sub_components'] + self._data['parent_components']
 
-                data[key] = self.component_format(self.data[key], value)
+                data[key] = self.component_format(self._data[key], value)
 
         return data
 

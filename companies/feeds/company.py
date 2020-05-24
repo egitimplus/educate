@@ -1,5 +1,5 @@
 class CompanyRepository:
 
     def __init__(self, request, company):
-        self.request = request
-        self.queryset = company
+        self._request = request
+        self._queryset = company
