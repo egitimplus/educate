@@ -10,7 +10,7 @@ from educategories.serializers import EduCategorySimpleSerializer
 from questions.serializers import QuestionSerializer
 from components.models import ComponentStat, ComponentAnswer
 from questions.feeds import QuestionRepository
-from components.feeds import ComponentStatRepository, ComponentsStatRepository
+from components.feeds import ComponentStatRepository
 from tests.feeds import TestRepository
 
 
@@ -100,78 +100,9 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         test = TestRepository(request=request, test=queryset)
 
         test_answer = test.answer()
+
+        test_answer.set_answers(answers)
         test_unique = test_answer.test_unique
-
-        questions = test.questions()
-
-        test_answer.counts['total'] = len(questions)
-
-        for question in questions:
-            qr = QuestionRepository(request=request, question=question, prepare=True)
-
-            i = 0
-            answer_is_true = 0
-
-            # post edilen soru cevaplarına göre veri tabanında gerekli düzenlemeleri yapalım
-            for answer in answers:
-                # Eğer post edilen cevaplar içerisinde bu soru için cevap bulunduysa
-                if answer['question_id'] == question.id:
-                    question_answer_id = answer['answer_id']
-                    i = i + 1
-                    # Eğer post edilen cevap doğru ise
-                    if question_answer_id == qr.true_answer.id:
-                        true_components = qr.add_true_answer(test_unique=test_unique)
-                        test_answer.components['true'].append(true_components)
-                        test_answer.counts['true'] = test_answer.counts['true'] + 1
-                        # cevabı soru istatistiklerine ekleyelim
-                        qr.add_question_answer(
-                            test_unique=test_unique,
-                            question_answer_id=question_answer_id,
-                            answer_is_true=1
-                        )
-                        answer_is_true = 1
-                    # Eğer post edilen cevap yanlış ise
-                    else:
-                        component_answers = ComponentAnswer.objects.select_related(
-                            'component'
-                        ).filter(question_answer_id=question_answer_id).all()
-
-                        if len(component_answers) > 0:
-                            # sorudaki soru parçaları için gerekli işlemleri yapalım
-                            for component_answer in component_answers:
-                                csr = ComponentStatRepository(request=self.request, component=component_answer.component)
-                                if component_answer.component_ok == 1:
-                                    # soru parçasını doğru soru parçası listesine ekleyelim
-                                    true_components = csr.add_true_answer(question=question, test_unique=test_unique)
-                                    test_answer.components['true'].append(true_components)
-                                else:
-                                    # soru parçasını yanlış soru parçası listesine ekleyelim
-                                    false_components = csr.add_false_answer(question=question, test_unique=test_unique)
-                                    test_answer.components['false'].append(false_components)
-                        else:
-                            # soru parçasını yanlış soru parçası listesine ekleyelim
-                            false_components = qr.add_false_answer(test_unique=test_unique)
-                            test_answer.components['false'].append(false_components)
-
-                        test_answer.counts['false'] = test_answer.counts['false'] + 1
-                        # cevabı soru istatistiklerine ekleyelim
-                        qr.add_question_answer(
-                            test_unique=test_unique,
-                            question_answer_id=question_answer_id,
-                            answer_is_true=0
-                        )
-
-            # Eğer post edilen cevaplar içerisinde bu soru için cevap bulunamadıysa
-            if i == 0:
-                # soru parçasını boş soru parçası listesine ekleyelim
-                empty_components = qr.add_empty_answer(test_unique=test_unique)
-                test_answer.components['empty'].append(empty_components)
-
-                # boş soru sayısını bir artıralım
-                test_answer.counts['empty'] = test_answer.counts['empty'] + 1
-
-            # question unique oluşturularım ve istatistikleri ekleyelim
-            qr.create_question_unique(answer_is_true)
 
         # sorulardaki soru parçalarını birleştirelim ve tekleştirelim.
         all_components = test_answer.all_components()
@@ -182,14 +113,10 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             user=request.user
         ).values('id', 'component_id', 'component_status')
 
-        component_stat_repo = ComponentsStatRepository(
-            request=request,
-            component_stats=component_stats,
-            answers=test_answer
-        )
+        test_answer.set_component_stats(component_stats)
 
         for component in all_components:
-            component_stat_repo.update_component_status(component)
+            test_answer.update_component_status(component)
 
         test_result = test_answer.test_result()
 

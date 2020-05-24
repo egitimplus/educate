@@ -9,6 +9,7 @@ class ComponentRepository:
         self.queryset = kwargs.pop("component", None)
         self.counts = kwargs.pop("counts", None)
         self.status = kwargs.pop("status", None)
+
         self.data = {
             'sub_components': [],
             'all_sub_components': [],

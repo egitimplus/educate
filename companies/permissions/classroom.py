@@ -9,7 +9,8 @@ class ClassroomPermissionMixin(object):
 
         class_object_permission_list = ['retrieve', 'destroy', 'update', 'student_list', 'attach_student',
                                         'detach_student', 'teacher_list', 'attach_teacher', 'detach_teacher',
-                                        'lesson_list', 'attach_lesson', 'detach_lesson']
+                                        'lesson_list', 'attach_lesson', 'detach_lesson', 'course', 'course_user',
+                                        'course_stat', 'course_lesson', 'course_unit', 'course_lecture_stat']
         school_object_permission_list = ['list', 'create']
 
         if self.action in class_object_permission_list:

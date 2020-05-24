@@ -64,7 +64,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
 
         serialized_question = QuestionSerializer(queryset)
 
-        question_repo = QuestionRepository(request=request, question=queryset, prepare=False)
+        question_repo = QuestionRepository(request=request, question=queryset)
 
         all_components = question_repo.all_components()
 
@@ -88,7 +88,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'exam'
         ).first()
 
-        question_repo = QuestionRepository(request, queryset, prepare=False)
+        question_repo = QuestionRepository(request, queryset)
 
         source = SourceQuestionSerializer(queryset.source_questions, many=True)
 
@@ -181,9 +181,9 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        question_repo = QuestionRepository(request=request, question=instance, prepare=False)
+        q = QuestionRepository(request=request, question=instance)
 
-        if question_repo.have_answer_stat():
+        if q.have_answer_stat():
             # TODO sadece soruyu pasifleştirme yeterli mi ? Bunun üzerine düşünmek gerekli.
             # soru daha önce çözülmüş silinme yapılamaz. pasifleştirme yapalım.
             # question modelinin pre_save methodunda güncelleme mesajı gönderiyor.

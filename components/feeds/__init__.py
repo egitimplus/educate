@@ -1,4 +1,3 @@
 from .component import ComponentRepository
-from .components_stat import ComponentsStatRepository
 from .component_stat import ComponentStatRepository
 from .component_mixin import ComponentMixin
