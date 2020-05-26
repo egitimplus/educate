@@ -4,8 +4,7 @@ from library.feeds import flatten, search_id
 from questions.feeds import QuestionRepository
 from questions.models import QuestionAnswer
 from components.models import ComponentAnswer, ComponentStatusChange
-from components.feeds import ComponentStatRepository, ComponentRepository
-from components.models import ComponentStat
+from components.feeds import ComponentRepository
 from library.mixins import TestUniqueMixin, RequestMixin
 
 
@@ -23,9 +22,6 @@ class TestAnswerRepository(TestUniqueMixin, RequestMixin):
 
     def __init__(self, test):
         self._test = test
-
-        if self._test.request is not None:
-            self._request = self._test.request
 
     @property
     def answers(self):

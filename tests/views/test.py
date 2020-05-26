@@ -101,6 +101,8 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         # test için yer bir cevap sınıfı oluşturalım
         test.create_answer()
 
+        test.answer.request = request
+
         # test cevapları için yeni bir unique oluşturalım
         test.answer.set_test_unique()
 
