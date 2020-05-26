@@ -53,11 +53,10 @@ class QuestionStatRepository(TestUniqueMixin, RequestMixin):
 
             c = ComponentRepository(component=component)
             c.request = self._question.request
-
+            c.create_stat()
             c.stat.request = self._question.request
             c.stat.test_unique = self._question.test_unique
-
-            c.create_stat()
+            c.stat.question = self._question
             c.stat.add_empty()
 
             # soru parçasını doğru soru parçası listesine ekleyelim

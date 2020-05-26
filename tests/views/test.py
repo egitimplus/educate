@@ -117,7 +117,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             # veritabanından tekleştirilen soru parçalarına ait durum bilgilerini çekelim
             component_stats = ComponentStat.objects.filter(
                 component_id__in=all_components,
-                user=self._request.user
+                user=request.user
             ).values('id', 'component_id', 'component_status')
 
             test.answer.component_stats = component_stats
