@@ -29,13 +29,13 @@ class LearningLectureViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, m
         serializer = LearningLectureSerializer(queryset, many=False, context={'request': request})
         response = serializer.data
 
-        lecture_repo = LectureRepository(request, queryset)
+        lr = LectureRepository(request, queryset)
 
         response.update({
-            'all_sub_components':  lecture_repo.all_sub_components(return_format='list'),
-            'sub_components': lecture_repo.sub_components(return_format='list'),
-            'data_components': lecture_repo.data_sub_components(),
-            'all_data_components': lecture_repo.data_all_sub_components()
+            'all_sub_components':  lr.all_sub_components(return_format='list'),
+            'sub_components': lr.sub_components(return_format='list'),
+            'data_components': lr.data_sub_components(),
+            'all_data_components': lr.data_all_sub_components()
         })
 
         return Response(response)

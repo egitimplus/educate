@@ -19,8 +19,8 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
 
         queryset = Component.objects.filter(id=pk).prefetch_related('to_component', 'source_component').first()
 
-        cr = ComponentRepository(request=request, component=queryset)
-
+        cr = ComponentRepository(component=queryset)
+        cr.request = request
         cr.sub_components()
         cr.all_sub_components()
         cr.parent_components()
@@ -82,7 +82,10 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
         component_status = stats.component_status if status else 0
         component_count = queryset.component_answer_stat_component.count()
 
-        cr = ComponentRepository(request=request, component=queryset, counts=True, status=True)
+        cr = ComponentRepository(component=queryset)
+        cr.request = request
+        cr.counts = True
+        cr.status = True
 
         cr.sub_components()
         cr.all_sub_components()
@@ -118,8 +121,8 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
             serialized_question = ComponentSerializer(query)
             item = serialized_question.data
 
-            cr = ComponentRepository(request=request, component=query)
-
+            cr = ComponentRepository(component=query)
+            cr.request = request
             cr.sub_components()
             cr.all_sub_components()
             cr.parent_components()

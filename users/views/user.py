@@ -164,8 +164,8 @@ class UserViewSet(UserPermissionMixin, mixins.CreateModelMixin, mixins.ListModel
     @action(methods=['GET'], detail=False)
     def logout(self, request, *args, **kwargs):
 
-        user_repo = UserRepository(user=request.user)
-        user_repo.change_token()
+        ur = UserRepository(user=request.user)
+        ur.change_token()
 
         return Response(status=status.HTTP_200_OK)
 
@@ -187,8 +187,8 @@ class UserViewSet(UserPermissionMixin, mixins.CreateModelMixin, mixins.ListModel
             user.set_password(serializer.data.get("password"))
             user.save()
 
-            user_repo = UserRepository(user=user)
-            new_token = user_repo.change_token()
+            ur = UserRepository(user=user)
+            new_token = ur.change_token()
 
             return Response(status=status.HTTP_200_OK)
 

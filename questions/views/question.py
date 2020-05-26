@@ -64,9 +64,10 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
 
         serialized_question = QuestionSerializer(queryset)
 
-        question_repo = QuestionRepository(request=request, question=queryset)
+        qr = QuestionRepository(question=queryset)
+        qr.request = request
 
-        all_components = question_repo.all_components()
+        all_components = qr.all_components()
 
         response = serialized_question.data
         response.update({
@@ -88,7 +89,8 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'exam'
         ).first()
 
-        question_repo = QuestionRepository(request, queryset)
+        qr = QuestionRepository(question=queryset)
+        qr.request = request
 
         source = SourceQuestionSerializer(queryset.source_questions, many=True)
 
@@ -104,7 +106,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
                     'component_ok': component_answer.component_ok
                 })
 
-            repo = QuestionAnswerRepository(request, answer)
+            qa = QuestionAnswerRepository(request=request, question_answer=answer)
 
             answer_data = {
                 'id': answer.id,
@@ -114,9 +116,9 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
                 'is_true_answer': answer.is_true_answer,
                 'components': {
                     'component_answer_check': component_answer_check,
-                    'all_sub_components': repo.all_sub_components(return_format='list'),
-                    'sub_components': repo.sub_components(return_format='list'),
-                    'data_components': repo.sub_components()
+                    'all_sub_components': qa.all_sub_components(return_format='list'),
+                    'sub_components': qa.sub_components(return_format='list'),
+                    'data_components': qa.sub_components()
                 }
             }
             answers.append(answer_data)
@@ -130,7 +132,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
                 'exam_name': item.exam.name,
                 'exam_year': item.exam_year,
                 'exam_id': item.exam_id
-            });
+            })
 
         response = {
             'id': queryset.id,
@@ -146,10 +148,10 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'source_questions': source.data,
             'exam': exams,
             'question_answers': answers,
-            'all_sub_components':  question_repo.all_sub_components(return_format='list'),
-            'sub_components': question_repo.sub_components(return_format='list'),
-            'data_components': question_repo.data_sub_components(),
-            'all_data_components': question_repo.data_all_sub_components(),
+            'all_sub_components':  qr.all_sub_components(return_format='list'),
+            'sub_components': qr.sub_components(return_format='list'),
+            'data_components': qr.data_sub_components(),
+            'all_data_components': qr.data_all_sub_components(),
             'category': get_category(queryset.edu_category_id),
             'breadcrumb': get_breadcrumb(queryset.edu_category_id)
         }
@@ -181,7 +183,8 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        q = QuestionRepository(request=request, question=instance)
+        q = QuestionRepository(question=instance)
+        q.request = request
 
         if q.have_answer_stat():
             # TODO sadece soruyu pasifleştirme yeterli mi ? Bunun üzerine düşünmek gerekli.

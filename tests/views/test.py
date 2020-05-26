@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from educategories.serializers import EduCategorySimpleSerializer
 from questions.serializers import QuestionSerializer
-from components.models import ComponentStat
 from tests.feeds import TestRepository
+from components.models import ComponentStat
 
 
 class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -95,29 +95,36 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
             'questions__answers__answer_components'
         ).get(id=test_id)
 
-        test = TestRepository(request=request, test=queryset)
+        test = TestRepository(test=queryset)
+        test.request = request
 
-        test_answer = test.answer()
+        # test için yer bir cevap sınıfı oluşturalım
+        test.create_answer()
 
-        test_answer.answers = answers
-        test_unique = test_answer.test_unique
+        # test cevapları için yeni bir unique oluşturalım
+        test.answer.set_test_unique()
+
+        # post edilen cevapları ekleyelim
+        test.answer.answers = answers
+
+        # test cevaplarını işleyelim
+        test.answer.finish()
 
         # sorulardaki soru parçalarını birleştirelim ve tekleştirelim.
-        all_components = test_answer.all_components()
+        all_components = test.answer.all_components()
 
-        # veritabanından tekleştirilen soru parçalarına ait durum bilgilerini çekelim
-        component_stats = ComponentStat.objects.filter(
-            component_id__in=all_components,
-            user=request.user
-        ).values('id', 'component_id', 'component_status')
+        if all_components:
+            # veritabanından tekleştirilen soru parçalarına ait durum bilgilerini çekelim
+            component_stats = ComponentStat.objects.filter(
+                component_id__in=all_components,
+                user=self._request.user
+            ).values('id', 'component_id', 'component_status')
 
-        test_answer.component_stats = component_stats
+            test.answer.component_stats = component_stats
 
-        for component in all_components:
-            test_answer.update_component_status(component)
+            for component in all_components:
+                test.answer.update_component_status(component)
 
-        test_result = test_answer.test_result()
-
-        TestUnique.objects.filter(ids=test_unique.id).update(test_result=test_result)
+        TestUnique.objects.filter(ids=test.answer.test_unique.id).update(test_result=test.answer.test_result())
 
         return Response([])

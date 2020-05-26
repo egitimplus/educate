@@ -175,9 +175,9 @@ class QuestionPostSerializer(serializers.ModelSerializer):
         # daha önceden bu soru için çözüm yapılmış mı
         # eğer çözüm var ise soru güncellemeye kapatılacak
         if self.instance:
-            question_repo = QuestionRepository(request=[], question=self.instance)
+            qr = QuestionRepository(question=self.instance)
 
-            if question_repo.have_answer_stat():
+            if qr.have_answer_stat():
                 raise serializers.ValidationError(
                     {'update': 'Bu soru için daha önceden çözüm yapılmış. Bu soru bilgileri güncellemeye kapalıdır.'}
                 )

@@ -1,58 +1,71 @@
 from components.models import ComponentAnswerStat
-from . import ComponentRepository
+from library.mixins import TestUniqueMixin, RequestMixin
 
 
-class ComponentStatRepository:
+class ComponentStatRepository(TestUniqueMixin, RequestMixin):
+    _true_answer = 0
+    _empty_answer = 0
+    _question = None
 
-    def __init__(self, request, **kwargs):
-        self._request = request
+    def __init__(self, **kwargs):
 
-        self._queryset = kwargs.pop("component", None)
-        self._question = kwargs.pop("question", None)
-        self._test_unique = kwargs.pop("test_unique", None)
+        self._component = kwargs.pop("component", None)
 
-    def add_answer(self, component, answer):
+    def add_answer(self, component=None):
 
-        answer_is_true = 0
-        answer_is_empty = 1
-
-        if answer == 'true':
-            answer_is_true = 1
-            answer_is_empty = 0
-        elif answer == 'false':
-            answer_is_true = 0
-            answer_is_empty = 0
+        if component is None:
+            component = self._component.queryset
 
         # cevabı soru parçası istatistiklerine ekleyelim
         ComponentAnswerStat.objects.create(
             component=component,
-            question=self._question,
+            question=self._question.queryset,
             test_unique=self._test_unique,
             user=self._request.user,
-            answer_is_true=answer_is_true,
-            answer_is_empty=answer_is_empty
+            answer_is_true=self._true_answer,
+            answer_is_empty=self._empty_answer
         )
 
-    def add_true_answer(self):
+    def add_true(self):
+
+        self._true_answer = 1
+        self._empty_answer = 0
 
         # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self._queryset, 'true')
+        self.add_answer(self._component.queryset)
 
-        cr = ComponentRepository(request=self._request, component=self._queryset)
+        self._component.all_sub_components()
 
-        cr.all_sub_components()
-
-        data = cr.component_formats(all_sub_components='list')
+        data = self._component.component_formats(all_sub_components='list')
 
         for component in data['all_sub_components']:
-            self.add_answer(component, 'true')
+            self.add_answer(component)
 
         return data['all_sub_components']
 
-    def add_false_answer(self):
-        # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self._queryset, 'false')
+    def add_false(self):
 
-    def add_empty_answer(self):
+        self._true_answer = 0
+        self._empty_answer = 0
+
         # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self._queryset, 'true')
+        self.add_answer()
+
+        return self._component.queryset.id
+
+    def add_empty(self):
+        self._true_answer = 0
+        self._empty_answer = 1
+
+        # cevabı soru parçası istatistiklerine ekleyelim
+        self.add_answer()
+
+        return self._component.queryset.id
+
+    @property
+    def question(self):
+        return self._question
+
+    @question.setter
+    def question(self, value):
+        self._question = value

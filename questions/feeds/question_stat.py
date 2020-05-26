@@ -1,30 +1,28 @@
-from components.feeds import ComponentStatRepository
+from components.feeds import ComponentRepository
+from library.mixins import TestUniqueMixin, RequestMixin
 
 
-class QuestionStatRepository:
+class QuestionStatRepository(TestUniqueMixin, RequestMixin):
 
-    def __init__(self, request, **kwargs):
-        self._request = request
+    def __init__(self, **kwargs):
         self._question = kwargs.pop("question", None)
-        self._components = kwargs.pop("components", None)
-        self._test_unique = kwargs.pop("test_unique", None)
 
     def add_true(self):
         components = list()
 
-        for component in self._components:
+        for component in self._question.components:
+            c = ComponentRepository(component=component)
+            c.request = self._question.request
 
-            csr = ComponentStatRepository(
-                request=self._request,
-                component=component,
-                question=self._question,
-                test_unique=self._test_unique
-            )
+            c.create_stat()
 
-            true_components = csr.add_true_answer()
+            c.stat.request = self._question.request
+            c.stat.test_unique = self._question.test_unique
+            c.stat.question = self._question
+
             components.append(component.id)
 
-            for true_component in true_components:
+            for true_component in c.stat.add_true():
                 components.append(true_component)
 
         return components
@@ -32,16 +30,16 @@ class QuestionStatRepository:
     def add_false(self):
         components = list()
 
-        for component in self._components:
+        for component in self._question.components:
+            c = ComponentRepository(component=component)
+            c.request = self._question.request
 
-            csr = ComponentStatRepository(
-                request=self._request,
-                component=component,
-                question=self._question,
-                test_unique=self._test_unique
-            )
+            c.create_stat()
 
-            csr.add_false_answer()
+            c.stat.request = self._question.request
+            c.stat.test_unique = self._question.test_unique
+
+            c.stat.add_false()
 
             # soru parçasını doğru soru parçası listesine ekleyelim
             components.append(component.id)
@@ -51,16 +49,16 @@ class QuestionStatRepository:
     def add_empty(self):
         components = list()
 
-        for component in self._components:
+        for component in self._question.components:
 
-            csr = ComponentStatRepository(
-                request=self._request,
-                component=component,
-                question=self._question,
-                test_unique=self._test_unique
-            )
+            c = ComponentRepository(component=component)
+            c.request = self._question.request
 
-            csr.add_empty_answer()
+            c.stat.request = self._question.request
+            c.stat.test_unique = self._question.test_unique
+
+            c.create_stat()
+            c.stat.add_empty()
 
             # soru parçasını doğru soru parçası listesine ekleyelim
             components.append(component.id)

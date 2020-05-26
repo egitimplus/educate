@@ -1,35 +1,33 @@
 from components.feeds import ComponentMixin
 from questions.models import QuestionAnswerStat
+from library.mixins import TestUniqueMixin, RequestMixin
 
 
-class QuestionAnswerRepository(ComponentMixin):
+class QuestionAnswerRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
+    _answer_count = 1
 
-    def __init__(self, request, **kwargs):
-        test_unique = kwargs.pop("test_unique", None)
-        question = kwargs.pop("question", None)
+    def __init__(self, **kwargs):
+        self._question = kwargs.pop("question", None)
+        self._answer = kwargs.pop("question_answer", None)
 
-        self._request = request
-        self._question = question
-        self._test_unique = test_unique
-        self._answer_id = None
-        self._answer_is_true = None
-        self._answer_count = 1
+    def add_answer(self):
+        # cevabı soru istatistiklerine ekleyelim
+        QuestionAnswerStat.objects.create(
+            answer_is_true=self.answer_is_true(),
+            answer_seconds=0,
+            answer_type=1,
+            question=self._question.queryset,
+            user=self._request.user,
+            test_unique=self._test_unique,
+            question_answer_id=self._answer.id,
+            answer_count=self._answer_count
+        )
 
-    @property
-    def answer_id(self):
-        return self._answer_id
-
-    @answer_id.setter
-    def answer_id(self, answer_id):
-        self._answer_id = answer_id
-
-    @property
     def answer_is_true(self):
-        return self._answer_is_true
+        if self._answer.id == self._question.true_answer.id:
+            return 1
 
-    @answer_is_true.setter
-    def answer_is_true(self, status):
-        self._answer_is_true = status
+        return 0
 
     @property
     def answer_count(self):
@@ -39,18 +37,6 @@ class QuestionAnswerRepository(ComponentMixin):
     def answer_count(self, value):
         self._answer_count = value
 
-    def add_answer(self):
 
-        # cevabı soru istatistiklerine ekleyelim
-        QuestionAnswerStat.objects.create(
-            answer_is_true=self._answer_is_true,
-            answer_seconds=0,
-            answer_type=1,
-            question=self._question,
-            user=self._request.user,
-            test_unique=self._test_unique,
-            question_answer_id=self._answer_id,
-            answer_count=self._answer_count
-        )
 
 

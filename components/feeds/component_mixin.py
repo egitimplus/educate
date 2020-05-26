@@ -8,7 +8,8 @@ class ComponentMixin:
         data = []
 
         for component in self._queryset.component.all():
-            cr = ComponentRepository(request=self._request, component=component)
+            cr = ComponentRepository(component=component)
+            cr.request = self._request
             cr.sub_components()
 
             data = cr.component_formats(
@@ -24,8 +25,8 @@ class ComponentMixin:
         data = []
 
         for component in self._queryset.component.all():
-            cr = ComponentRepository(request=self._request, component=component)
-
+            cr = ComponentRepository(component=component)
+            cr.request = self._request
             sub = cr.data_component()
             cr.data_components()
 
@@ -52,13 +53,10 @@ class ComponentMixin:
 
         for component in self._queryset.component.all():
 
-            cr = ComponentRepository(
-                request=self._request,
-                component=component,
-                counts=counts,
-                status=status
-            )
-
+            cr = ComponentRepository(component=component)
+            cr.request = self._request
+            cr.counts = counts
+            cr.status = status
             cr.all_sub_components()
 
             parent_component = cr.component()
@@ -94,13 +92,10 @@ class ComponentMixin:
         data = []
 
         for component in self._queryset.component.all():
-            cr = ComponentRepository(
-                request=self._request,
-                component=component,
-                counts=counts,
-                status=status
-            )
-
+            cr = ComponentRepository(component=component)
+            cr.request = self._request
+            cr.counts = counts
+            cr.status = status
             child = cr.component()
             if return_format == 'dict':
                 data.append(child)
@@ -118,13 +113,10 @@ class ComponentMixin:
         data = []
 
         for component in self._queryset.component.all():
-            cr = ComponentRepository(
-                request=self._request,
-                component=component,
-                counts=counts,
-                status=status
-            )
-
+            cr = ComponentRepository(component=component)
+            cr.request = self._request
+            cr.counts = counts
+            cr.status = status
             item = cr.component()
             cr.all_sub_components()
 

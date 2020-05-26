@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 
 
 class LearningUnitViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                            mixins.UpdateModelMixin, mixins.DestroyModelMixin,viewsets.GenericViewSet):
+                          mixins.UpdateModelMixin, mixins.DestroyModelMixin,viewsets.GenericViewSet):
 
     queryset = LearningUnit.objects.all()
     serializer_class = LearningUnitSerializer

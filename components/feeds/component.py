@@ -1,22 +1,23 @@
 from components.models import ComponentAnswerStat, ComponentStat
 from library.feeds import search_id
+from components.feeds import ComponentStatRepository
+from library.mixins import TestUniqueMixin, RequestMixin
 
 
-class ComponentRepository:
+class ComponentRepository(TestUniqueMixin, RequestMixin):
+    _stat = None
+    _data = {
+        'sub_components': [],
+        'all_sub_components': [],
+        'parent_components': [],
+        'all_parent_components': [],
+        'data_components': [],
+    }
+    _counts = False
+    _status = False
 
-    def __init__(self, request, **kwargs):
-        self._request = request
+    def __init__(self, **kwargs):
         self._queryset = kwargs.pop("component", None)
-        self._counts = kwargs.pop("counts", None)
-        self._status = kwargs.pop("status", None)
-
-        self._data = {
-            'sub_components': [],
-            'all_sub_components': [],
-            'parent_components': [],
-            'all_parent_components': [],
-            'data_components': [],
-        }
 
     # soru parçası bilgileri
     def detail(self):
@@ -144,3 +145,13 @@ class ComponentRepository:
 
         return data
 
+    @property
+    def stat(self):
+        return self._stat
+
+    def create_stat(self):
+        self._stat = ComponentStatRepository(component=self)
+
+    @property
+    def queryset(self):
+        return self._queryset

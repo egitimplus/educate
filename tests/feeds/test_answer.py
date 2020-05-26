@@ -2,30 +2,30 @@ from tests.models import TestUnique
 import math
 from library.feeds import flatten, search_id
 from questions.feeds import QuestionRepository
-from components.models import ComponentAnswer
-from components.feeds import ComponentStatRepository
+from questions.models import QuestionAnswer
+from components.models import ComponentAnswer, ComponentStatusChange
+from components.feeds import ComponentStatRepository, ComponentRepository
+from components.models import ComponentStat
+from library.mixins import TestUniqueMixin, RequestMixin
 
 
-class TestAnswerRepository:
+class TestAnswerRepository(TestUniqueMixin, RequestMixin):
 
-    def __init__(self, request, test):
-        self._request = request
-        self._queryset = test
-        self._test_unique = None
+    _true = 0
+    _false = 0
+    _empty = 0
+    _total = 0
+    _true_components = []
+    _false_components = []
+    _empty_components = []
+    _answers = None
+    _component_stats = None
 
-        self._true = 0
-        self._false = 0
-        self._empty = 0
-        self._total = 0
+    def __init__(self, test):
+        self._test = test
 
-        self._true_components = []
-        self._false_components = []
-        self._empty_components = []
-
-        self._answers = None
-        self._component_stats = None
-
-        self.set_test_unique()
+        if self._test.request is not None:
+            self._request = self._test.request
 
     @property
     def answers(self):
@@ -46,7 +46,7 @@ class TestAnswerRepository:
     def set_test_unique(self):
         test_unique = TestUnique.objects.create(
             user_id=self._request.user.id,
-            test_id=self._queryset.id,
+            test_id=self._test.queryset.id,
             report='report',
             test_result=0
         )
@@ -102,83 +102,99 @@ class TestAnswerRepository:
 
         new_status = 1 if data['percent'] >= true_component_percent else 0
 
-        self.status_change_add(data['status'], new_status)
+        self.status_change_add(component_id, data['status'], new_status)
 
         return data
 
-    def status_change_add(self, old, new):
-        pass
+    def status_change_add(self, component_id, old, new):
+
+        ComponentStatusChange.objects.update_or_create(
+            component_id=component_id,
+            user=self._request.user,
+            defaults={
+                "old_status": old,
+                "new_status": new
+            }
+        )
 
     def finish(self):
-        questions = self._queryset.questions()
 
-        self._total = len(questions)
+        test_questions = self._test.queryset.questions.all()
 
-        for question in questions:
-            qr = QuestionRepository(request=self._request, question=question, test_unique=self._test_unique)
-            qr.prepare_question()
+        self._total = len(test_questions)
 
-            qs = qr.stat()
-            qa = qr.answer()
+        for test_question in test_questions:
+            question = QuestionRepository(question=test_question)
+
+            question.request = self._request
+            question.test_unique = self._test_unique
+
+            question.set_components()
+            question.set_code()
+            question.set_true_answer()
+            question.create_stat()
 
             i = 0
-
             # post edilen soru cevaplarına göre veri tabanında gerekli düzenlemeleri yapalım
             for answer in self.answers:
-                qa.answer_id = answer['question_id']
+
+                question_answer = QuestionAnswer.objects.get(pk=answer['answer_id'])
+                question.create_answer(question_answer=question_answer)
+
                 # Eğer post edilen cevaplar içerisinde bu soru için cevap bulunduysa
-                if qa.answer_id == question.id:
+                if answer['question_id'] == test_question.id:
                     i = i + 1
+
                     # Eğer post edilen cevap doğru ise
-                    if qa.answer_id == qr.true_answer.id:
+                    if question.answer.answer_is_true():
+                        if question.components:
+                            self._true_components.append(question.stat.add_true())
 
-                        self._true_components.append(qs.add_true())
                         self._true = self._true + 1
-
-                        # cevabı soru istatistiklerine ekleyelim
-                        qa.answer_is_true = 1
-                        qa.add_answer()
 
                     # Eğer post edilen cevap yanlış ise
                     else:
-                        component_answers = ComponentAnswer.objects.select_related(
-                            'component'
-                        ).filter(question_answer_id=qa.answer_id).all()
+                        if question.components:
+                            component_answers = ComponentAnswer.objects.select_related(
+                                'component'
+                            ).filter(question_answer_id=question_answer.id).all()
 
-                        if len(component_answers) > 0:
-                            # sorudaki soru parçaları için gerekli işlemleri yapalım
+                            if len(component_answers) > 0:
+                                # sorudaki soru parçaları için gerekli işlemleri yapalım
 
-                            for component_answer in component_answers:
-                                csr = ComponentStatRepository(
-                                    request=self._request,
-                                    component=component_answer.component,
-                                    question=question,
-                                    test_unique=self._test_unique
-                                )
+                                for component_answer in component_answers:
 
-                                if component_answer.component_ok == 1:
-                                    # soru parçasını doğru soru parçası listesine ekleyelim
+                                    c = ComponentRepository(component=component_answer.component)
+                                    c.create_stat()
+                                    c.stat.question = question
+                                    c.stat.request = self._request
+                                    c.stat.test_unique = self._test_unique
 
-                                    self._true_components.append(csr.add_true_answer())
-
-                                else:
-                                    # soru parçasını yanlış soru parçası listesine ekleyelim
-                                    self._false_components.append(csr.add_false_answer())
-                        else:
-                            # soru parçasını yanlış soru parçası listesine ekleyelim
-                            self._false_components.append(qs.add_false())
+                                    if component_answer.component_ok == 1:
+                                        # soru parçasını doğru soru parçası listesine ekleyelim
+                                        self._true_components.append(c.stat.add_true())
+                                    else:
+                                        # soru parçasını yanlış soru parçası listesine ekleyelim
+                                        self._false_components.append(c.stat.add_false())
+                            else:
+                                # soru parçasını yanlış soru parçası listesine ekleyelim
+                                self._false_components.append(question.stat.add_false())
 
                         self._false = self._false + 1
-                        qa.answer_is_true = 0
-                        # cevabı soru istatistiklerine ekleyelim
-                        qa.add_answer()
 
             # Eğer post edilen cevaplar içerisinde bu soru için cevap bulunamadıysa
             if i == 0:
-                # soru parçasını boş soru parçası listesine ekleyelim
-                self._empty_components.append(qs.add_empty())
+                if question.components:
+                    # soru parçasını boş soru parçası listesine ekleyelim
+                    self._empty_components.append(question.stat.add_empty())
+
                 # boş soru sayısını bir artıralım
                 self._empty = self._empty + 1
-            # question unique oluşturularım ve istatistikleri ekleyelim
-            qu = qr.unique()
-            qu.update_stats(qa.answer_is_true)
+
+            if question.components:
+                # question unique oluşturularım ve istatistikleri ekleyelim
+                question.create_unique()
+                question.unique.request = self._request
+                question.unique.update_stats(question.answer.answer_is_true)
+
+

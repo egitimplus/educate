@@ -54,7 +54,8 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.U
             serialized_question = ComponentSerializer(query)
             item = serialized_question.data
 
-            cr = ComponentRepository(request=request, component=query)
+            cr = ComponentRepository(component=query)
+            cr.request = request
 
             cr.sub_components()
             cr.all_sub_components()

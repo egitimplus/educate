@@ -135,8 +135,12 @@ class CourseViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, viewsets.Ge
 
         row = LearningUnit.objects.get(pk=unit_id)
 
-        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(unit_id=unit_id, lecture_parent__publisher_id=publisher_id).annotate(total=Count('unit_id')).all()
-        serializer = LearningSubjectSerializer(queryset, many=True, context={'request': request, 'publisher_id': publisher_id})
+        queryset = LearningSubject.objects.prefetch_related('lecture_parent').filter(
+            unit_id=unit_id,
+            lecture_parent__publisher_id=publisher_id
+        ).annotate(total=Count('unit_id')).all()
+        serializer = LearningSubjectSerializer(
+            queryset, many=True, context={'request': request, 'publisher_id': publisher_id})
 
         data = {
             'id': row.id,
