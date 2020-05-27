@@ -191,6 +191,7 @@ class TestAnswerRepository(TestUniqueMixin, RequestMixin):
                 # question unique oluşturularım ve istatistikleri ekleyelim
                 question.create_unique()
                 question.unique.request = self._request
-                question.unique.update_stats(question.answer.answer_is_true)
+                question.unique.answer_is_true = question.answer.answer_is_true
+                question.unique.update_stats()
 
 
