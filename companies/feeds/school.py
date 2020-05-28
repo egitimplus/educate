@@ -6,6 +6,14 @@ class SchoolRepository(RequestMixin):
     def __init__(self, **kwargs):
         self._queryset = kwargs.pop("school", None)
 
+    @property
+    def managers(self):
+        return self._queryset.manager.all()
+
+    @property
+    def group_manager(self):
+        return self._queryset.group.user
+
     def manager_ids(self):
         return self._queryset.manager.all().values_list('id', flat=True)
 

@@ -10,12 +10,10 @@ class ClassroomSchoolObjectPermission(permissions.BasePermission):
 
         sr = SchoolRepository(school=school)
 
-        group_manager = sr.group_manager_id()
-        if group_manager == request.user.id:
+        if sr.group_manager == request.user:
             return True
 
-        school_managers = sr.manager_ids()
-        if request.user.id in school_managers:
+        if request.user.id in sr.managers.values_list('id', flat=True):
             return True
 
         return False
