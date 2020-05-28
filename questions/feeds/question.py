@@ -14,6 +14,7 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
 
     def __init__(self, **kwargs):
         self._queryset = kwargs.pop("question", None)
+        print(self._queryset)
 
     def create_stat(self):
         self._stat = QuestionStatRepository(question=self)
@@ -29,12 +30,10 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
         self._components = self._queryset.component.all()
 
     def set_true_answer(self):
-        self._true_answer = self._queryset.answers.filter(is_true_answer=1).first()
+        self._true_answer = self._queryset.true_answer
 
     def set_code(self):
-        unique = sorted(set(self._components.values_list('id', flat=True)))
-
-        self._code = '-'.join(map(str, unique))
+        self._code = self._queryset.code
 
     @property
     def true_answer(self):

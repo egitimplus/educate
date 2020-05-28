@@ -121,6 +121,7 @@ class TestAnswerRepository(TestUniqueMixin, RequestMixin):
         self._total = len(test_questions)
 
         for test_question in test_questions:
+
             question = QuestionRepository(question=test_question)
 
             question.request = self._request

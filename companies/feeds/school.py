@@ -1,28 +1,11 @@
 from library.mixins import RequestMixin
+from companies.feeds import CompanyRepository
 
 
-class SchoolRepository(RequestMixin):
+class SchoolRepository(CompanyRepository, RequestMixin):
 
     def __init__(self, **kwargs):
         self._queryset = kwargs.pop("school", None)
 
-    @property
-    def managers(self):
-        return self._queryset.manager.all()
-
-    @property
-    def group_manager(self):
-        return self._queryset.group.user
-
-    def manager_ids(self):
-        return self._queryset.manager.all().values_list('id', flat=True)
-
-    def group_manager_id(self):
-
-        group = self._queryset.group
-
-        if not group:
-            return 0
-        return group.user_id
 
 

@@ -30,6 +30,15 @@ class Question(models.Model):
             ("list_question", "List questions")
         )
 
+    @property
+    def true_answer(self):
+        return self.answers.filter(is_true_answer=1).first()
+
+    @property
+    def code(self):
+        unique = sorted(set(self.component.all().values_list('id', flat=True)))
+        return '-'.join(map(str, unique))
+
     '''
         selected_components için ilişkisel birşeyler lazım
         

@@ -3,5 +3,10 @@ from library.mixins import RequestMixin
 
 class CompanyRepository(RequestMixin):
 
-    def __init__(self, **kwargs):
-        self._queryset = kwargs.pop("company", None)
+    @property
+    def managers(self):
+        return self._queryset.manager.all()
+
+    @property
+    def group_manager(self):
+        return self._queryset.group.user
