@@ -8,20 +8,20 @@ class QuestionUniqueRepository(TestUniqueMixin, RequestMixin):
 
     def __init__(self, **kwargs):
         self._question = kwargs.pop("question", None)
-        self._queryset = kwargs.pop("question_unique", None)
+        self._object = kwargs.pop("question_unique", None)
         self._test_unique = self._question.test_unique
 
-    def update_stats(self, answer_is_true):
+    def update_stats(self):
         # unique soru istatistiklerini ekleyelim
         QuestionUniqueStat.objects.update_or_create(
-            question_unique_id=self._queryset.id,
+            question_unique_id=self._object.id,
             user=self._request.user,
-            defaults=self.status(answer_is_true)
+            defaults=self.status()
         )
 
-    def status(self, answer_is_true):
+    def status(self):
 
-        question_unique_stat = QuestionUniqueStat.objects.filter(id=self._queryset.id).first()
+        question_unique_stat = QuestionUniqueStat.objects.filter(id=self._object.id).first()
 
         true_question_diff = 10
         false_question_diff = 20
@@ -36,7 +36,7 @@ class QuestionUniqueRepository(TestUniqueMixin, RequestMixin):
             percent = question_unique_stat.percent
             solved = question_unique_stat.solved + 1
 
-        if answer_is_true == 1:
+        if self._answer_is_true == 1:
             repeat = repeat + 1 if repeat > 0 else 1
             percent = percent + true_question_diff if percent > 40 else 50
         else:

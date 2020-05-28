@@ -6,7 +6,7 @@ class TestRepository(TestUniqueMixin, RequestMixin):
     _answer = None
 
     def __init__(self, **kwargs):
-        self._queryset = kwargs.pop("test", None)
+        self._object = kwargs.pop("test", None)
 
     def create_answer(self):
         self._answer = TestAnswerRepository(test=self)
@@ -16,8 +16,8 @@ class TestRepository(TestUniqueMixin, RequestMixin):
         return self._answer
 
     @property
-    def queryset(self):
-        return self._queryset
+    def object(self):
+        return self._object
 
     def questions(self):
-        return self._queryset.questions.order_by('question').all()
+        return self._object.questions.order_by('question').all()

@@ -13,7 +13,7 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
     _unique = None
 
     def __init__(self, **kwargs):
-        self._queryset = kwargs.pop("question", None)
+        self._object = kwargs.pop("question", None)
 
     def create_stat(self):
         self._stat = QuestionStatRepository(question=self)
@@ -26,13 +26,13 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
         self._unique = QuestionUniqueRepository(question=self, question_unique=obj)
 
     def set_components(self):
-        self._components = self._queryset.component.all()
+        self._components = self._object.component.all()
 
     def set_true_answer(self):
-        self._true_answer = self._queryset.true_answer
+        self._true_answer = self._object.true_answer
 
     def set_code(self):
-        self._code = self._queryset.code
+        self._code = self._object.code
 
     @property
     def true_answer(self):
@@ -55,12 +55,12 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
         return self._unique
 
     @property
-    def queryset(self):
-        return self._queryset
+    def object(self):
+        return self._object
 
     # kullanıcılar soruyu daha önce çözmüş mü ?
     def have_answer_stat(self):
-        have_answer = QuestionAnswerStat.objects.filter(question=self._queryset, user=self._request.user).exists()
+        have_answer = QuestionAnswerStat.objects.filter(question=self._object, user=self._request.user).exists()
         if have_answer:
             return True
 

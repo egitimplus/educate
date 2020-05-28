@@ -15,12 +15,12 @@ class ComponentStatRepository(TestUniqueMixin, RequestMixin):
     def add_answer(self, component=None):
 
         if component is None:
-            component = self._component.queryset
+            component = self._component.object
 
         # cevabı soru parçası istatistiklerine ekleyelim
         ComponentAnswerStat.objects.create(
             component=component,
-            question=self._question.queryset,
+            question=self._question.object,
             test_unique=self._test_unique,
             user=self._request.user,
             answer_is_true=self._true_answer,
@@ -33,7 +33,7 @@ class ComponentStatRepository(TestUniqueMixin, RequestMixin):
         self._empty_answer = 0
 
         # cevabı soru parçası istatistiklerine ekleyelim
-        self.add_answer(self._component.queryset)
+        self.add_answer(self._component.object)
 
         self._component.all_sub_components()
 
@@ -52,7 +52,7 @@ class ComponentStatRepository(TestUniqueMixin, RequestMixin):
         # cevabı soru parçası istatistiklerine ekleyelim
         self.add_answer()
 
-        return self._component.queryset.id
+        return self._component.object.id
 
     def add_empty(self):
         self._true_answer = 0
@@ -61,7 +61,7 @@ class ComponentStatRepository(TestUniqueMixin, RequestMixin):
         # cevabı soru parçası istatistiklerine ekleyelim
         self.add_answer()
 
-        return self._component.queryset.id
+        return self._component.object.id
 
     @property
     def question(self):

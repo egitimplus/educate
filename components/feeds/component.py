@@ -17,14 +17,14 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
     _status = False
 
     def __init__(self, **kwargs):
-        self._queryset = kwargs.pop("component", None)
+        self._object = kwargs.pop("component", None)
 
     # soru parçası bilgileri
     def detail(self):
         data = {
-            'id': self._queryset.id,
-            'name': self._queryset.name,
-            'level': self._queryset.level
+            'id': self._object.id,
+            'name': self._object.name,
+            'level': self._object.level
         }
 
         if self._counts:
@@ -37,8 +37,8 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
 
     # soru parçasına ait 1. dereceden alt soru parçaları
     def sub_components(self):
-        for item in self._queryset.source_component.all():
-            self._queryset = item
+        for item in self._object.source_component.all():
+            self._object = item
             if search_id(item.id, self._data['sub_components']):
                 continue
             else:
@@ -47,8 +47,8 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
 
     # soru parçasının bulunduğu 1. dereceden üst soru parçaları
     def parent_components(self):
-        for item in self._queryset.to_component.all():
-            self._queryset = item
+        for item in self._object.to_component.all():
+            self._object = item
             if search_id(item.id, self._data['parent_components']):
                 continue
             else:
@@ -57,8 +57,8 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
 
     # soru parçasına ait tüm alt soru parçaları
     def all_sub_components(self):
-        for item in self._queryset.source_component.all():
-            self._queryset = item
+        for item in self._object.source_component.all():
+            self._object = item
             if search_id(item.id, self._data['all_sub_components']):
                 continue
             else:
@@ -68,8 +68,8 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
 
     # soru parçasının bulunduğu tüm üst soru parçaları
     def all_parent_components(self):
-        for item in self._queryset.to_component.all():
-            self._queryset = item
+        for item in self._object.to_component.all():
+            self._object = item
             if search_id(item.id, self._data['all_parent_components']):
                 continue
             else:
@@ -82,9 +82,9 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
         self.all_sub_components()
 
         data = {
-            'id': self._queryset.id,
-            'name': self._queryset.name,
-            'level': self._queryset.level,
+            'id': self._object.id,
+            'name': self._object.name,
+            'level': self._object.level,
             'sub_components': self.component_format(self._data['sub_components'], 'list'),
             'all_sub_components': self.component_format(self._data['all_sub_components'], 'list')
         }
@@ -92,8 +92,8 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
         return data
 
     def data_components(self):
-        for component in self._queryset.source_component.all():
-            self._queryset = component
+        for component in self._object.source_component.all():
+            self._object = component
             if search_id(component.id, self._data['data_components']):
                 continue
             else:
@@ -106,7 +106,7 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
     # TODO Counts calısıyormu kontrol edilmeli
     def component_count(self):
         return ComponentAnswerStat.objects.filter(
-            component=self._queryset,
+            component=self._object,
             user=self._request.user
         ).count()
 
@@ -114,7 +114,7 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
     # TODO Status calısıyormu kontrol edilmeli
     def component_status(self):
         component = ComponentStat.objects.filter(
-            component=self._queryset,
+            component=self._object,
             user=self._request.user
         ).first()
 
@@ -153,5 +153,5 @@ class ComponentRepository(TestUniqueMixin, RequestMixin):
         self._stat = ComponentStatRepository(component=self)
 
     @property
-    def queryset(self):
-        return self._queryset
+    def object(self):
+        return self._object

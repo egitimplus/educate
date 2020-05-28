@@ -8,11 +8,11 @@ class ClassroomRepository(RequestMixin):
 
     @property
     def teachers(self):
-        return self._queryset.teacher.all()
+        return self._object.teacher.all()
 
     @property
     def students(self):
-        return self._queryset.student.all()
+        return self._object.student.all()
 
     def attach_student(self):
         # SIGNAL : Pattern listesine signal ile ekleme yapılıyor

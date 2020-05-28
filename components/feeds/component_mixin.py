@@ -7,7 +7,7 @@ class ComponentMixin:
     def data_sub_components(self):
         data = []
 
-        for component in self._queryset.component.all():
+        for component in self._object.component.all():
             cr = ComponentRepository(component=component)
             cr.request = self._request
             cr.sub_components()
@@ -24,7 +24,7 @@ class ComponentMixin:
     def data_all_sub_components(self):
         data = []
 
-        for component in self._queryset.component.all():
+        for component in self._object.component.all():
             cr = ComponentRepository(component=component)
             cr.request = self._request
             sub = cr.data_component()
@@ -51,7 +51,7 @@ class ComponentMixin:
 
         all_components = []
 
-        for component in self._queryset.component.all():
+        for component in self._object.component.all():
 
             cr = ComponentRepository(component=component)
             cr.request = self._request
@@ -91,7 +91,7 @@ class ComponentMixin:
 
         data = []
 
-        for component in self._queryset.component.all():
+        for component in self._object.component.all():
             cr = ComponentRepository(component=component)
             cr.request = self._request
             cr.counts = counts
@@ -112,7 +112,7 @@ class ComponentMixin:
 
         data = []
 
-        for component in self._queryset.component.all():
+        for component in self._object.component.all():
             cr = ComponentRepository(component=component)
             cr.request = self._request
             cr.counts = counts

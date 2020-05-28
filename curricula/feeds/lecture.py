@@ -5,4 +5,4 @@ from library.mixins import RequestMixin
 class LectureRepository(ComponentMixin, RequestMixin):
 
     def __init__(self, **kwargs):
-        self._queryset = kwargs.pop("lecture", None)
+        self._object = kwargs.pop("lecture", None)

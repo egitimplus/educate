@@ -43,7 +43,7 @@ class TestAnswerRepository(TestUniqueMixin, RequestMixin):
     def set_test_unique(self):
         test_unique = TestUnique.objects.create(
             user_id=self._request.user.id,
-            test_id=self._test.queryset.id,
+            test_id=self._test.object.id,
             report='report',
             test_result=0
         )
@@ -116,7 +116,7 @@ class TestAnswerRepository(TestUniqueMixin, RequestMixin):
 
     def finish(self):
 
-        test_questions = self._test.queryset.questions.all()
+        test_questions = self._test.object.questions.all()
 
         self._total = len(test_questions)
 
