@@ -20,8 +20,9 @@ class TestAnswerRepository(TestUniqueMixin, RequestMixin):
     _answers = None
     _component_stats = None
 
-    def __init__(self, test):
-        self._test = test
+    def __init__(self, **kwargs):
+        self._test = kwargs.pop("test", None)
+        self._test_unique = self._test.test_unique
 
     @property
     def answers(self):

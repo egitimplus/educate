@@ -1,5 +1,7 @@
-class CompanyRepository:
+from library.mixins import RequestMixin
 
-    def __init__(self, request, company):
-        self._request = request
-        self._queryset = company
+
+class CompanyRepository(RequestMixin):
+
+    def __init__(self, **kwargs):
+        self._queryset = kwargs.pop("company", None)

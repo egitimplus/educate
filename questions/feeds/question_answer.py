@@ -8,7 +8,8 @@ class QuestionAnswerRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
 
     def __init__(self, **kwargs):
         self._question = kwargs.pop("question", None)
-        self._answer = kwargs.pop("question_answer", None)
+        self._queryset = kwargs.pop("question_answer", None)
+        self._test_unique = self._question.test_unique
 
     def add_answer(self):
         # cevabı soru istatistiklerine ekleyelim
@@ -19,12 +20,12 @@ class QuestionAnswerRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
             question=self._question.queryset,
             user=self._request.user,
             test_unique=self._test_unique,
-            question_answer_id=self._answer.id,
+            question_answer_id=self._queryset.id,
             answer_count=self._answer_count
         )
 
     def answer_is_true(self):
-        if self._answer.id == self._question.true_answer.id:
+        if self._queryset.id == self._question.true_answer.id:
             return 1
 
         return 0

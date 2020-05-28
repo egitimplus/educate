@@ -9,6 +9,7 @@ class QuestionUniqueRepository(TestUniqueMixin, RequestMixin):
     def __init__(self, **kwargs):
         self._question = kwargs.pop("question", None)
         self._queryset = kwargs.pop("question_unique", None)
+        self._test_unique = self._question.test_unique
 
     def update_stats(self, answer_is_true):
         # unique soru istatistiklerini ekleyelim

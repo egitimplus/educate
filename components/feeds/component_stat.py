@@ -10,6 +10,7 @@ class ComponentStatRepository(TestUniqueMixin, RequestMixin):
     def __init__(self, **kwargs):
 
         self._component = kwargs.pop("component", None)
+        self._test_unique = self._component.test_unique
 
     def add_answer(self, component=None):
 

@@ -6,6 +6,7 @@ class QuestionStatRepository(TestUniqueMixin, RequestMixin):
 
     def __init__(self, **kwargs):
         self._question = kwargs.pop("question", None)
+        self._test_unique = self._question.test_unique
 
     def add_true(self):
         components = list()

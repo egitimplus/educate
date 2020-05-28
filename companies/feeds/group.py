@@ -1,9 +1,11 @@
+from library.mixins import RequestMixin
 
-class GroupRepository:
 
-    def __init__(self, request, group):
-        self._request = request
-        self._queryset = group
+class GroupRepository(RequestMixin):
+
+    def __init__(self, **kwargs):
+        self._queryset = kwargs.pop("group", None)
+
 
 
 

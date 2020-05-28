@@ -5,8 +5,8 @@ from library.mixins import TestUniqueMixin, RequestMixin
 class TestRepository(TestUniqueMixin, RequestMixin):
     _answer = None
 
-    def __init__(self, test):
-        self._queryset = test
+    def __init__(self, **kwargs):
+        self._queryset = kwargs.pop("test", None)
 
     def create_answer(self):
         self._answer = TestAnswerRepository(test=self)

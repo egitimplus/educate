@@ -8,7 +8,7 @@ class ClassroomObjectPermission(permissions.BasePermission):
 
         school = School.objects.get(id=obj.school_id)
 
-        sr = SchoolRepository(request=request, school=school)
+        sr = SchoolRepository(school=school)
         group_manager = sr.group_manager_id()
 
         if group_manager == request.user.id:
@@ -18,7 +18,7 @@ class ClassroomObjectPermission(permissions.BasePermission):
         if request.user.id in school_managers:
             return True
 
-        cr = ClassroomRepository(request=request, classroom=obj)
+        cr = ClassroomRepository(classroom=obj)
         classroom_teachers = cr.teacher_ids()
         if request.user.id in classroom_teachers:
             return True
