@@ -18,9 +18,6 @@ class CompanyGroupViewSet(GroupPermissionMixin, mixins.ListModelMixin, mixins.Re
     # gruba bağlı okul listesi
     @action(methods=['GET'], detail=True)
     def school_list(self, request, pk=None):
-
-        user = request.user
-
         queryset = School.objects.filter(group_id=pk).all()
         self.get_object()
         page = self.paginate_queryset(queryset)

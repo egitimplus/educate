@@ -14,7 +14,6 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
 
     def __init__(self, **kwargs):
         self._queryset = kwargs.pop("question", None)
-        print(self._queryset)
 
     def create_stat(self):
         self._stat = QuestionStatRepository(question=self)
@@ -61,7 +60,7 @@ class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
 
     # kullanıcılar soruyu daha önce çözmüş mü ?
     def have_answer_stat(self):
-        have_answer = QuestionAnswerStat.objects.filter(question=self._queryset).exists()
+        have_answer = QuestionAnswerStat.objects.filter(question=self._queryset, user=self._request.user).exists()
         if have_answer:
             return True
 
