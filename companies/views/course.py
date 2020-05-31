@@ -1,8 +1,8 @@
-from rest_framework import viewsets, mixins, status
-from companies.models import Classroom, SchoolStudent, SchoolTeacher, SchoolLessonTeacher, ClassroomLesson, ClassroomTeacher, ClassroomStudent
+from rest_framework import viewsets, mixins
+from rest_framework.response import Response
+from companies.models import Classroom
 from companies.serializers import ClassroomSerializer
 from companies.permissions import ClassroomPermissionMixin
-from rest_framework.response import Response
 from companies.feeds import CourseRepository
 
 
@@ -25,8 +25,9 @@ class CourseViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, viewsets.Ge
 
     # sınıfa eklenmiş dersleri ve üniteleri listeler
     def course(self, request, pk=None):
-        course = CourseRepository(course=self.get_object())
-        content = course.detail()
+        course = self.get_object()
+        cr = CourseRepository(course=course)
+        content = cr.detail()
 
         return Response(content)
 
@@ -39,38 +40,41 @@ class CourseViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, viewsets.Ge
 
     # kurs soru parçalarının istatistikleri
     def course_stat(self, request, pk=None):
-        course = CourseRepository(course=self.get_object())
-        course.request = request
-        content = course.stat()
+        course = self.get_object()
+        cr = CourseRepository(course=course)
+        cr.request = request
+        content = cr.stat()
 
         return Response(content)
 
     # seçilmiş olan dersin ünite ve konularını listeler
     def course_lesson(self, request, pk=None):
-        course = CourseRepository(course=self.get_object())
-        course.request = request
-        course.publisher_id = int(request.query_params.get('publisher_id', None))
-        course.lesson_id = int(request.query_params.get('lesson_id', None))
-        content = course.lesson()
+        instance = self.get_object()
+        cr = CourseRepository(course=instance)
+        cr.request = request
+        cr.publisher_id = int(request.query_params.get('publisher_id', None))
+        cr.lesson_id = int(request.query_params.get('lesson_id', None))
+        content = cr.lesson()
 
         return Response(content)
 
     # seçilmiş olan ünitenin konularını ve bölümlerini listeler
     def course_unit(self, request, pk=None):
-
-        course = CourseRepository(course=self.get_object())
-        course.request = request
-        course.publisher_id = int(request.query_params.get('p', None))
-        course.unit_id = int(request.query_params.get('u', None))
-        content = course.unit()
+        course = self.get_object()
+        cr = CourseRepository(course=course)
+        cr.request = request
+        cr.publisher_id = int(request.query_params.get('p', None))
+        cr.unit_id = int(request.query_params.get('u', None))
+        content = cr.unit()
 
         return Response(content)
 
     # lecture okundu olarak düzenler
     def course_lecture_stat(self, request, pk=None):
-        course = CourseRepository(course=self.get_object())
-        course.request = request
-        course.lecture_id = int(request.query_params.get('lc', None))
-        content = course.lecture_stat()
+        course = self.get_object()
+        cr = CourseRepository(course=course)
+        cr.request = request
+        cr.lecture_id = int(request.query_params.get('lc', None))
+        content = cr.lecture_stat()
 
         return Response({'data': content})
