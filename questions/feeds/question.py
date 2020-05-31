@@ -5,62 +5,64 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
-    _components = None
-    _code = None
-    _true_answer = None
-    _stat = None
-    _answer = None
-    _unique = None
+    __components = None
+    __code = None
+    __true_answer = None
+    __stat = None
+    __answer = None
+    __unique = None
+    __object = None
+    __request = None
 
     def __init__(self, **kwargs):
-        self._object = kwargs.pop("question", None)
+        self.__object = kwargs.pop("question", None)
 
     def create_stat(self):
-        self._stat = QuestionStatRepository(question=self)
+        self.__stat = QuestionStatRepository(question=self)
 
     def create_answer(self, question_answer=None):
-        self._answer = QuestionAnswerRepository(question=self, question_answer=question_answer)
+        self.__answer = QuestionAnswerRepository(question=self, question_answer=question_answer)
 
     def create_unique(self):
-        obj, created = QuestionUnique.objects.get_or_create(question_code=self._code)
-        self._unique = QuestionUniqueRepository(question=self, question_unique=obj)
+        obj, created = QuestionUnique.objects.get_or_create(question_code=self.__code)
+        self.__unique = QuestionUniqueRepository(question=self, question_unique=obj)
 
     def set_components(self):
-        self._components = self._object.component.all()
+        self.__components = self.__object.component.all()
 
     def set_true_answer(self):
-        self._true_answer = self._object.true_answer
+        self.__true_answer = self.__object.true_answer
 
     def set_code(self):
-        self._code = self._object.code
+        self.__code = self.__object.code
 
     @property
     def true_answer(self):
-        return self._true_answer
+        return self.__true_answer
 
     @property
     def components(self):
-        return self._components
+        return self.__components
 
     @property
     def answer(self):
-        return self._answer
+        return self.__answer
 
     @property
     def stat(self):
-        return self._stat
+        return self.__stat
 
     @property
     def unique(self):
-        return self._unique
+        return self.__unique
 
     @property
     def object(self):
-        return self._object
+        return self.__object
 
     # kullanıcılar soruyu daha önce çözmüş mü ?
     def have_answer_stat(self):
-        have_answer = QuestionAnswerStat.objects.filter(question=self._object, user=self._request.user).exists()
+        have_answer = QuestionAnswerStat.objects.filter(question=self.__object, user=self.__request.user).exists()
         if have_answer:
             return True
 

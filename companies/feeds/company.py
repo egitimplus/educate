@@ -5,8 +5,8 @@ class CompanyRepository(RequestMixin):
 
     @property
     def managers(self):
-        return self._object.manager.all()
+        return self.__object.manager.all()
 
     @property
     def group_manager(self):
-        return self._object.group.user
+        return self.__object.group.user

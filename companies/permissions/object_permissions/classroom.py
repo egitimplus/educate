@@ -17,6 +17,8 @@ class ClassroomObjectPermission(permissions.BasePermission):
             return True
 
         cr = ClassroomRepository(classroom=obj)
+        cr.request = request
+
         if request.user.id in cr.teachers.values_list('id', flat=True):
             return True
 

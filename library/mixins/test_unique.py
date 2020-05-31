@@ -1,10 +1,10 @@
 class TestUniqueMixin:
-    _test_unique = None
+    __test_unique = None
 
     @property
     def test_unique(self):
-        return self._test_unique
+        return self.__test_unique
 
     @test_unique.setter
     def test_unique(self, value):
-        self._test_unique = value
+        self.__test_unique = value

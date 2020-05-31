@@ -4,24 +4,29 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 class QuestionUniqueRepository(TestUniqueMixin, RequestMixin):
 
-    _answer_is_true = 0
+    __answer_is_true = 0
+    __question = None
+    __test_unique = None
+    __request = None
+    __object = None
 
     def __init__(self, **kwargs):
-        self._question = kwargs.pop("question", None)
-        self._object = kwargs.pop("question_unique", None)
-        self._test_unique = self._question.test_unique
+        self.__question = kwargs.pop("question", None)
+        self.__object = kwargs.pop("question_unique", None)
+        self.__test_unique = self.__question.test_unique
+        self.__request = self.__question.request
 
     def update_stats(self):
         # unique soru istatistiklerini ekleyelim
         QuestionUniqueStat.objects.update_or_create(
-            question_unique_id=self._object.id,
-            user=self._request.user,
+            question_unique_id=self.__object.id,
+            user=self.__request.user,
             defaults=self.status()
         )
 
     def status(self):
 
-        question_unique_stat = QuestionUniqueStat.objects.filter(id=self._object.id).first()
+        question_unique_stat = QuestionUniqueStat.objects.filter(id=self.__object.id).first()
 
         true_question_diff = 10
         false_question_diff = 20
@@ -56,9 +61,9 @@ class QuestionUniqueRepository(TestUniqueMixin, RequestMixin):
 
     @property
     def answer_is_true(self):
-        return self._answer_is_true
+        return self.__answer_is_true
 
     @answer_is_true.setter
     def answer_is_true(self, value):
-        self._answer_is_true = value
+        self.__answer_is_true = value
 

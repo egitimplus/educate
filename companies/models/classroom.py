@@ -18,6 +18,7 @@ class Classroom(models.Model):
     student = models.ManyToManyField('users.User', through='companies.ClassroomStudent', related_name='classroom_students')
     teacher = models.ManyToManyField('users.User', through='companies.ClassroomTeacher', related_name='classroom_teachers')
     lesson = models.ManyToManyField('companies.SchoolLessonTeacher', through='companies.ClassroomLesson', related_name='classroom_lessons')
+    type = models.PositiveSmallIntegerField()
 
     pattern = GenericRelation('users.Pattern')
 

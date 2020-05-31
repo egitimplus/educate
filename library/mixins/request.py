@@ -1,10 +1,10 @@
 class RequestMixin:
-    _request = None
+    __request = None
 
     @property
     def request(self):
-        return self._request
+        return self.__request
 
     @request.setter
     def request(self, value):
-        self._request = value
+        self.__request = value

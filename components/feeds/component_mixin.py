@@ -7,9 +7,9 @@ class ComponentMixin:
     def data_sub_components(self):
         data = []
 
-        for component in self._object.component.all():
+        for component in self.__object.component.all():
             cr = ComponentRepository(component=component)
-            cr.request = self._request
+            cr.request = self.__request
             cr.sub_components()
 
             data = cr.component_formats(
@@ -24,9 +24,9 @@ class ComponentMixin:
     def data_all_sub_components(self):
         data = []
 
-        for component in self._object.component.all():
+        for component in self.__object.component.all():
             cr = ComponentRepository(component=component)
-            cr.request = self._request
+            cr.request = self.__request
             sub = cr.data_component()
             cr.data_components()
 
@@ -51,10 +51,10 @@ class ComponentMixin:
 
         all_components = []
 
-        for component in self._object.component.all():
+        for component in self.__object.component.all():
 
             cr = ComponentRepository(component=component)
-            cr.request = self._request
+            cr.request = self.__request
             cr.counts = counts
             cr.status = status
             cr.all_sub_components()
@@ -91,9 +91,9 @@ class ComponentMixin:
 
         data = []
 
-        for component in self._object.component.all():
+        for component in self.__object.component.all():
             cr = ComponentRepository(component=component)
-            cr.request = self._request
+            cr.request = self.__request
             cr.counts = counts
             cr.status = status
             child = cr.component()
@@ -112,9 +112,9 @@ class ComponentMixin:
 
         data = []
 
-        for component in self._object.component.all():
+        for component in self.__object.component.all():
             cr = ComponentRepository(component=component)
-            cr.request = self._request
+            cr.request = self.__request
             cr.counts = counts
             cr.status = status
             item = cr.component()

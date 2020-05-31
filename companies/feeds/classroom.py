@@ -1,29 +1,28 @@
-from library.mixins import RequestMixin
 
 
-class ClassroomRepository(RequestMixin):
+class ClassroomRepository:
 
     def __init__(self, **kwargs):
-        self._object = kwargs.pop("classroom", None)
+        self.__object = kwargs.pop("classroom", None)
 
     @property
     def teachers(self):
-        return self._object.teacher.all()
+        return self.__object.teacher.all()
 
     @property
     def students(self):
-        return self._object.student.all()
+        return self.__object.student.all()
 
     def attach_student(self):
         # SIGNAL : Pattern listesine signal ile ekleme yapılıyor
         # SIGNAL : Role listesine signal ile ekleme yapılıyor
 
-        users = self._request.data.get('users')
-        school = self._object.school
+        users = self.__request.data.get('users')
+        school = self.__object.school
 
         for user in users:
             if school.user.filter(student_id=user).exists():
-                if not self._object.filter(student_id=user).exists():
-                    self._object.student.add(user)
+                if not self.__object.filter(student_id=user).exists():
+                    self.__object.student.add(user)
 
 

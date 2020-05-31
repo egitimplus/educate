@@ -4,12 +4,17 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class QuestionAnswerRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
-    _answer_count = 1
+    __answer_count = 1
+    __question = None
+    __object = None
+    __test_unique = None
+    __request = None
 
     def __init__(self, **kwargs):
-        self._question = kwargs.pop("question", None)
-        self._object = kwargs.pop("question_answer", None)
-        self._test_unique = self._question.test_unique
+        self.__question = kwargs.pop("question", None)
+        self.__object = kwargs.pop("question_answer", None)
+        self.__test_unique = self.__question.test_unique
+        self.__request = self.__question.request
 
     def add_answer(self):
         # cevabı soru istatistiklerine ekleyelim
@@ -17,26 +22,26 @@ class QuestionAnswerRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
             answer_is_true=self.answer_is_true(),
             answer_seconds=0,
             answer_type=1,
-            question=self._question.object,
-            user=self._request.user,
-            test_unique=self._test_unique,
-            question_answer_id=self._object.id,
-            answer_count=self._answer_count
+            question=self.__question.object,
+            user=self.__request.user,
+            test_unique=self.__test_unique,
+            question_answer_id=self.__object.id,
+            answer_count=self.__answer_count
         )
 
     def answer_is_true(self):
-        if self._object.id == self._question.true_answer.id:
+        if self.__object.id == self.__question.true_answer.id:
             return 1
 
         return 0
 
     @property
     def answer_count(self):
-        return self._answer_count
+        return self.__answer_count
 
     @answer_count.setter
     def answer_count(self, value):
-        self._answer_count = value
+        self.__answer_count = value
 
 
 

@@ -9,7 +9,6 @@ from rest_framework.decorators import action
 from educategories.serializers import EduCategorySimpleSerializer
 from questions.serializers import QuestionSerializer
 from tests.feeds import TestRepository
-from components.models import ComponentStat
 
 
 class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -26,7 +25,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
 
     @action(methods=['GET'], detail=True)
     def view(self, request, pk=None):
-        queryset = Test.objects.prefetch_related('questions','categories').filter(id=pk).first()
+        queryset = Test.objects.prefetch_related('questions', 'categories').filter(id=pk).first()
 
         questions = QuestionSerializer(queryset.questions.order_by('question').all(), many=True)
         categories = EduCategorySimpleSerializer(queryset.categories.all(), many=True)
@@ -74,8 +73,8 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
     ' QuestionUniqueStat    : Benzersiz soru istatistikleri eklenecek - question_unique_stat
     ' QuestionAnswerStat    : Soru cevap istatistikleri eklenecek - question_answer_stat 
     ' ComponentAnswerStat   : Soru parçası istatistikleri eklenecek - component_answer_stat
-    ' -ComponentStat         : Soru parçası durum güncellemesi yapılacak - component_stat
-    ' -ComponentStatusChange : Cron job ile güncellenecek soru parçaları - component_status_change
+    ' ComponentStat         : Soru parçası durum güncellemesi yapılacak - component_stat
+    ' ComponentStatusChange : Cron job ile güncellenecek soru parçaları - component_status_change
     '------------------------------------------------------------------------------------------------
     '''
     @transaction.atomic
@@ -101,8 +100,6 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         # test için yer bir cevap sınıfı oluşturalım
         test.create_answer()
 
-        test.answer.request = request
-
         # test cevapları için yeni bir unique oluşturalım
         test.answer.set_test_unique()
 
@@ -110,23 +107,8 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         test.answer.answers = answers
 
         # test cevaplarını işleyelim
-        test.answer.finish()
-
-        # sorulardaki soru parçalarını birleştirelim ve tekleştirelim.
-        all_components = test.answer.all_components()
-
-        if all_components:
-            # veritabanından tekleştirilen soru parçalarına ait durum bilgilerini çekelim
-            component_stats = ComponentStat.objects.filter(
-                component_id__in=all_components,
-                user=request.user
-            ).values('id', 'component_id', 'component_status')
-
-            test.answer.component_stats = component_stats
-
-            for component in all_components:
-                test.answer.update_component_status(component)
-
-        TestUnique.objects.filter(ids=test.answer.test_unique.id).update(test_result=test.answer.test_result())
+        test.answer.update_questions()
+        test.answer.update_components()
+        test.answer.update_test_result()
 
         return Response([])
