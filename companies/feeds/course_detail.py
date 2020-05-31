@@ -66,7 +66,7 @@ class CourseDetailRepository(CourseAbstract):
 
         unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
 
-        response = {
+        return {
             'id': row.id,
             'period': row.lesson.duration,
             'name': row.lesson.name,
@@ -77,8 +77,6 @@ class CourseDetailRepository(CourseAbstract):
             'curricula_name': row.lesson.lesson.curricula.name,
             'unit': unit.data
         }
-
-        return response
 
     def stat(self):
         queryset = ClassroomLesson.objects.prefetch_related('lesson__lesson__curricula__units__component').filter(
@@ -113,13 +111,11 @@ class CourseDetailRepository(CourseAbstract):
                 'request': self.__parent.request, 'publisher_id': self.__parent.publisher_id
             })
 
-        data = {
+        return {
             'id': row.id,
             'name': row.name,
             'subjects': serializer.data
         }
-
-        return data
 
     def lecture_stat(self):
 
