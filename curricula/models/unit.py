@@ -28,7 +28,6 @@ class LearningUnit(models.Model):
             ("delete_learningunit_test", "Detach learning unit test")
         )
 
-
     def save(self, force_insert=False, force_update=False, using=None):
         if not self.id:
             self.slug = slugify(self.name)

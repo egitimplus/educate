@@ -21,6 +21,7 @@ class LearningLecture(models.Model):
     tag = models.ManyToManyField('curricula.LearningTag', related_name='lecture_tag')
 
     publisher = models.ForeignKey('publishers.Publisher', related_name='lecture_publisher', on_delete=models.CASCADE)
+    lesson = models.ManyToManyField('companies.SchoolLessonTeacher', related_name='lecture_lesson')
 
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

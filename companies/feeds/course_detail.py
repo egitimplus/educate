@@ -1,7 +1,7 @@
 from companies.feeds import CourseAbstract
 from companies.models import ClassroomLesson
 from components.models import ComponentStat
-from components.serializers import ComponentStatSerializer, ComponentSerializer
+from components.serializers import ComponentStatSerializer
 from curricula.models import LearningUnit, LearningSubject, LearningLectureStat
 from curricula.serializers import LearningSubjectSerializer, LearningLectureStatSerializer, LearningUnitSerializer
 from django.db.models import Count
@@ -12,12 +12,16 @@ class CourseDetailRepository(CourseAbstract):
     def __init__(self, **kwargs):
         self.__parent = kwargs.pop("parent", None)
 
+    @property
+    def parent(self):
+        return self.__parent
+
     def detail(self):
         queryset = ClassroomLesson.objects.select_related(
             'lesson__lesson__curricula', 'classroom'
         ).prefetch_related(
             'lesson__lesson__curricula__units__subjects__lecture_parent',
-        ).filter(classroom=self.__parent.object).all()
+        ).filter(classroom=self.parent.object).all()
 
         response = []
         item = {}
@@ -25,12 +29,13 @@ class CourseDetailRepository(CourseAbstract):
 
         for item in queryset:
             unit = LearningUnitSerializer(
-                item.lesson.lesson.curricula.units.all(),
+                item.lesson.lesson.curricula.units.filter(
+                    subject__lecture_parent__lesson__id=item.lesson.id
+                ).all(),
                 many=True,
                 context={
-                    'classroom': self.__parent.object.id,
-                    'publisher': self.__parent.publisher_id,
-                    'request': self.__parent.request,
+                    'lesson': item.lesson.id,
+                    'request': self.parent.request,
                     'test': {},
                     'component': {},
                     'subject': {

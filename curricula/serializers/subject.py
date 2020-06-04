@@ -5,9 +5,20 @@ from .lecture_stat import LearningLectureStatSerializer
 from components.serializers import ComponentSerializer
 
 
+class LearningSubjectListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+        lesson = self.context.get('lesson', None)
+        if lesson is not None:
+            data = data.filter(lecture_parent__lesson__id=lesson)
+
+        return super(LearningSubjectListSerializer, self).to_representation(data)
+
+
 class LearningSubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
+        list_serializer_class = LearningSubjectListSerializer
         model = LearningSubject
         fields = ('id', 'name', 'slug', 'content', 'position', 'unit', 'created', 'updated')
         extra_kwargs = {
@@ -33,7 +44,11 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
 
         lecture = self.context.get('lecture', None)
         if lecture is not None:
+            lesson = self.context.get('lesson', None)
+
             lecture['request'] = request
+            lecture['lesson'] = lesson
+
             self.fields['lecture_parent'] = LearningLectureSerializer(read_only=True, many=True, context=lecture)
 
     def update(self, instance, validated_data):
@@ -60,10 +75,9 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
         return {}
 
     def get_test(self, instance):
-        publisher_id = self.context.get("publisher_id")
+        lesson = self.context.get('lesson', None)
 
-        # TODO burası acaba sadece o publisher veriyormu kontrol edelim
-        test = instance.test.filter(test__publisher_id=publisher_id).order_by('-id').first()
+        test = instance.test.filter(lesson__id=lesson).order_by('-id').first()
 
         data = {}
         if test:
@@ -79,15 +93,17 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
 
         components = list()
         component_ids = list()
-        classroom = self.context.get("classroom")
 
-        test = instance.test.filter(test__classroom_id=classroom).first()
+        lesson = self.context.get('lesson', None)
 
-        for question in test.questions.all():
-            for question_component in question.components.all():
-                if question_component.id not in component_ids:
-                    component = ComponentSerializer(question_component, many=False)
-                    components.append(component.data)
-                    component_ids.append(question_component.id)
+        test = instance.test.filter(lesson__id=lesson).first()
+
+        if test:
+            for question in test.questions.all():
+                for question_component in question.components.all():
+                    if question_component.id not in component_ids:
+                        component = ComponentSerializer(question_component, many=False)
+                        components.append(component.data)
+                        component_ids.append(question_component.id)
 
         return components

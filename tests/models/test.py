@@ -21,7 +21,7 @@ class Test(models.Model):
     questions = models.ManyToManyField('questions.Question', through='TestQuestion', related_name='questions')
     categories = models.ManyToManyField('educategories.EduCategory', related_name='categories')
     publisher = models.ForeignKey('publishers.Publisher', related_name='test_publisher', on_delete=models.CASCADE)
-    classroom = models.ManyToManyField('companies.Classroom', related_name='classroom')
+    lesson = models.ManyToManyField('companies.SchoolLessonTeacher', related_name='lesson_teacher')
 
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

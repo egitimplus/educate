@@ -7,6 +7,16 @@ from .lecture_stat import LearningLectureStatSerializer
 from components.serializers import ComponentSerializer
 
 
+class LearningLectureListSerializer(serializers.ListSerializer):
+
+    def to_representation(self, data):
+        lesson = self.context.get('lesson', None)
+        if lesson is not None:
+            data = data.filter(lesson__id=lesson)
+
+        return super(LearningLectureListSerializer, self).to_representation(data)
+
+
 class LearningLectureSerializer(serializers.ModelSerializer):
 
     content_object = GenericRelatedField({
@@ -17,6 +27,7 @@ class LearningLectureSerializer(serializers.ModelSerializer):
     })
 
     class Meta:
+        list_serializer_class = LearningLectureListSerializer
         model = LearningLecture
         fields = ('id', 'name', 'summary', 'content', 'position', 'content_object', 'created', 'updated', 'subject', 'publisher')
         extra_kwargs = {

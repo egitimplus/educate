@@ -23,7 +23,11 @@ class LearningUnitSerializer(serializers.ModelSerializer):
         request = self.context.get('request', None)
 
         if subject is not None:
+            lesson = self.context.get('lesson', None)
+
             subject['request'] = request
+            subject['lesson'] = lesson
+
             self.fields['subjects'] = LearningSubjectSerializer(read_only=True, many=True, context=subject)
 
         if test is not None:
@@ -33,10 +37,9 @@ class LearningUnitSerializer(serializers.ModelSerializer):
             self.fields['component'] = serializers.SerializerMethodField(read_only=True)
 
     def get_test(self, instance):
-        publisher_id = self.context.get("publisher_id")
+        lesson = self.context.get('lesson', None)
 
-        # TODO burası acaba sadece o publisher veriyormu kontrol edelim
-        test = instance.test.filter(test__publisher_id=publisher_id).order_by('-id').first()
+        test = instance.test.filter(lesson__id=lesson).order_by('-id').first()
 
         data = {}
 
@@ -53,15 +56,17 @@ class LearningUnitSerializer(serializers.ModelSerializer):
 
         components = list()
         component_ids = list()
-        classroom = self.context.get("classroom")
 
-        test = instance.test.filter(test__classroom_id=classroom).first()
+        lesson = self.context.get('lesson', None)
 
-        for question in test.questions.all():
-            for question_component in question.components.all():
-                if question_component.id not in component_ids:
-                    component = ComponentSerializer(question_component, many=False)
-                    components.append(component.data)
-                    component_ids.append(question_component.id)
+        test = instance.test.filter(lesson__id=lesson).first()
+
+        if test:
+            for question in test.questions.all():
+                for question_component in question.components.all():
+                    if question_component.id not in component_ids:
+                        component = ComponentSerializer(question_component, many=False)
+                        components.append(component.data)
+                        component_ids.append(question_component.id)
 
         return components
