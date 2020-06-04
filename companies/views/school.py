@@ -363,7 +363,7 @@ class SchoolViewSet(SchoolPermissionMixin, mixins.ListModelMixin, mixins.Retriev
                     return Response({'error': 'Bu kullanıcı derse atanmış. Öncelikle ders ilişkisini kaldırın.'},
                                     status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    school_teacher.delete();
+                    school_teacher.delete()
 
             # Daha önceden öğrenci rolü eklenmiş ve yeni rollerde yoksa
             if student_count and 3 not in roles:

@@ -80,11 +80,3 @@ class EduCategorySerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
-
-class EduCategorySimpleSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = EduCategory
-        fields = ('id', 'name',)
-

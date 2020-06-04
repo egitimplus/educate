@@ -8,7 +8,7 @@ class CourseAbstract(ABC):
         pass
 
     @abstractmethod
-    def stat(self):
+    def component_stats(self):
         pass
 
     @abstractmethod

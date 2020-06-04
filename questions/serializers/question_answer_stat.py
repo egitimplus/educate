@@ -8,3 +8,4 @@ class QuestionAnswerStatSerializer(serializers.ModelSerializer):
         model = QuestionAnswerStat
         fields = ('id', 'answer_is_true', 'answer_seconds', 'answer_type', 'question', 'user', 'test_unique',
                   'question_answer', 'answer_count', 'created', 'updated')
+

@@ -28,7 +28,6 @@ class CompanyGroup(models.Model):
             ("list_companygroup_publishers", 'List company group publishers')  # CompanyViewSet@publisher_list
         )
 
-
     def __str__(self):
         return self.name
 

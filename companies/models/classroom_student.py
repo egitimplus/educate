@@ -15,3 +15,6 @@ class ClassroomStudent(models.Model):
             ("view_classroom_student", "View Classroom Student"),  # ClassroomViewSet@
 
         )
+
+    def __str__(self):
+        return self.student.first_name + " " + self.student.last_name

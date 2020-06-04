@@ -5,17 +5,15 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class QuestionRepository(TestUniqueMixin, RequestMixin, ComponentMixin):
-    __components = None
-    __code = None
-    __true_answer = None
-    __stat = None
-    __answer = None
-    __unique = None
-    __object = None
-    __request = None
 
     def __init__(self, **kwargs):
         self.__object = kwargs.pop("question", None)
+        self.__components = None
+        self.__code = None
+        self.__true_answer = None
+        self.__stat = None
+        self.__answer = None
+        self.__unique = None
 
     def create_stat(self):
         self.__stat = QuestionStatRepository(question=self)

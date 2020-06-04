@@ -4,28 +4,13 @@ from companies.models import Classroom, School
 
 class ClassroomSerializer(serializers.ModelSerializer):
 
-    school_id = serializers.IntegerField(required=False)
-
     class Meta:
         model = Classroom
-        fields = ('id', 'name', 'school_id', 'active', 'grade', 'department_id', 'year', 'created', 'updated')
+        fields = ('id', 'name', 'school', 'active', 'grade', 'department_id', 'year', 'created', 'updated','type')
         extra_kwargs = {
             'slug': {'required': False},
             'year': {'required': False},
         }
-
-    def validate_school_id(self, value):
-        school = School.objects.filter(id=value).exists()
-
-        if not school:
-            raise serializers.ValidationError('Seçilen okul bulunamadı.')
-
-        return value
-
-    def create(self, validated_data):
-        classroom = Classroom.objects.create(**validated_data)
-
-        return classroom
 
     def update(self, instance, validated_data):
 

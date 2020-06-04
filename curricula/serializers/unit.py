@@ -1,90 +1,67 @@
 from rest_framework import serializers
-from curricula.models import LearningLesson, LearningDomain, LearningUnit
-from curricula.serializers import LearningTestSerializer, LearningSubjectSerializer, LearningSubjectSimpleSerializer
+from curricula.models import LearningUnit
+from curricula.serializers import LearningSubjectSerializer
+from components.serializers import ComponentSerializer
 
 
 class LearningUnitSerializer(serializers.ModelSerializer):
 
-    test = LearningTestSerializer(many=True)
-    domain_id = serializers.IntegerField()
-    lesson_id = serializers.IntegerField(required=False)
-
     class Meta:
         model = LearningUnit
-        fields = ('id', 'name', 'slug', 'content', 'position', 'test', 'domain_id', 'lesson_id', 'component', 'created',
-                  'updated', 'subjects')
+        fields = ('id', 'name', 'slug', 'content', 'position', 'domain', 'lesson', 'created', 'updated')
         extra_kwargs = {
-            'slug': {'read_only': True, 'required': False}
+            'slug': {'read_only': True, 'required': False},
+            'lesson': {'required': False}
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['subjects'] = LearningSubjectSerializer(read_only=True, many=True, context=self.context)
+        subject = self.context.get('subject', None)
+        test = self.context.get('test', None)
+        component = self.context.get('component', None)
+        request = self.context.get('request', None)
 
-    def validate_domain_id(self, value):
-        domain = LearningDomain.objects.filter(id=value).exists()
+        if subject is not None:
+            subject['request'] = request
+            self.fields['subjects'] = LearningSubjectSerializer(read_only=True, many=True, context=subject)
 
-        if not domain:
-            raise serializers.ValidationError('Seçilen alan bulunamadı.')
+        if test is not None:
+            self.fields['test'] = serializers.SerializerMethodField(read_only=True)
 
-        return value
+        if component is not None:
+            self.fields['component'] = serializers.SerializerMethodField(read_only=True)
 
-    def validate_lesson_id(self, value):
-        lesson = LearningLesson.objects.filter(id=value).exists()
+    def get_test(self, instance):
+        publisher_id = self.context.get("publisher_id")
 
-        if not lesson:
-            raise serializers.ValidationError('Seçilen ders bulunamadı.')
+        # TODO burası acaba sadece o publisher veriyormu kontrol edelim
+        test = instance.test.filter(test__publisher_id=publisher_id).order_by('-id').first()
 
-        return value
+        data = {}
 
-    def create(self, validated_data):
-        unit = LearningUnit.objects.create(**validated_data)
+        if test:
+            data = {
+                'id': test.id,
+                'name': test.name,
+                'question_count': test.questions.count(),
+            }
 
-        return unit
+        return data
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data['name']
-        instance.content = validated_data['content']
-        instance.position = validated_data['position']
-        instance.domain_id = validated_data['domain_id']
+    def get_component(self, instance):
 
-        instance.save()
-        return instance
+        components = list()
+        component_ids = list()
+        classroom = self.context.get("classroom")
 
+        test = instance.test.filter(test__classroom_id=classroom).first()
 
-class LearningUnitSerializerWithSubjects(serializers.ModelSerializer):
+        for question in test.questions.all():
+            for question_component in question.components.all():
+                if question_component.id not in component_ids:
+                    component = ComponentSerializer(question_component, many=False)
+                    components.append(component.data)
+                    component_ids.append(question_component.id)
 
-    domain_id = serializers.IntegerField()
-    lesson_id = serializers.IntegerField(required=False)
-
-    class Meta:
-        model = LearningUnit
-        fields = ('id', 'name', 'slug', 'content', 'position', 'domain_id', 'lesson_id', 'component', 'created',
-                  'updated', 'subjects')
-        extra_kwargs = {
-            'slug': {'read_only': True, 'required': False}
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['subjects'] = LearningSubjectSimpleSerializer(read_only=True, many=True, context=self.context)
-
-    def validate_domain_id(self, value):
-        domain = LearningDomain.objects.filter(id=value).exists()
-
-        if not domain:
-            raise serializers.ValidationError('Seçilen alan bulunamadı.')
-
-        return value
-
-    def validate_lesson_id(self, value):
-        lesson = LearningLesson.objects.filter(id=value).exists()
-
-        if not lesson:
-            raise serializers.ValidationError('Seçilen ders bulunamadı.')
-
-        return value
-
-
+        return components

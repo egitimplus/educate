@@ -27,6 +27,7 @@ class CourseViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, viewsets.Ge
     def course(self, request, pk=None):
         course = self.get_object()
         cr = CourseRepository(course=course)
+        cr.request = request
         content = cr.detail()
 
         return Response(content)
@@ -37,15 +38,6 @@ class CourseViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, viewsets.Ge
         ids = queryset.values_list('id', flat=True)
 
         return Response(ids)
-
-    # kurs soru parçalarının istatistikleri
-    def course_stat(self, request, pk=None):
-        course = self.get_object()
-        cr = CourseRepository(course=course)
-        cr.request = request
-        content = cr.stat()
-
-        return Response(content)
 
     # seçilmiş olan dersin ünite ve konularını listeler
     def course_lesson(self, request, pk=None):
@@ -78,3 +70,17 @@ class CourseViewSet(ClassroomPermissionMixin, mixins.ListModelMixin, viewsets.Ge
         content = cr.lecture_stat()
 
         return Response({'data': content})
+
+    # kurs soru parçalarının istatistikleri
+    def course_component_stats(self, request, pk=None):
+        course = self.get_object()
+        cr = CourseRepository(course=course)
+        cr.request = request
+        content = cr.component_stats()
+
+        return Response(content)
+
+    # kurs bölümlerinin istatistikleri
+    def course_lecture_stats(self):
+        pass
+

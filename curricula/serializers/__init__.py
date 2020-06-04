@@ -3,12 +3,8 @@ from .domain import LearningDomainSerializer
 from .tag import LearningTagSerializer
 from .subject import LearningSubjectSerializer
 from .subject_simple import LearningSubjectSimpleSerializer
-from .test import LearningTestSerializer
-from .test_unique import LearningTestUniqueSerializer
-from .unit import LearningUnitSerializer, LearningUnitSerializerWithSubjects
-from .unit_simple import LearningUnitSimpleSerializer
+from .unit import LearningUnitSerializer
 from .lecture import LearningLectureSerializer
 from .lecture_post import LearningLecturePostSerializer
 from .lecture_stat import LearningLectureStatSerializer
-from .lecture_user import LearningLectureUserSerializer
 from .lecture_content import LearningLectureVideoSerializer, LearningLectureTextSerializer, LearningLectureLiveScribeSerializer, LearningLectureYoutubeSerializer

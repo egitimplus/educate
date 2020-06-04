@@ -2,7 +2,7 @@ from rest_framework import status, viewsets, mixins
 from rest_framework.response import Response
 from django.db import transaction
 from components.models import Component
-from components.serializers import ComponentSerializer, ComponentPostSerializer
+from components.serializers import ComponentSerializer
 from components.feeds import ComponentRepository
 from rest_framework.decorators import action
 from library.feeds import get_breadcrumb, get_category
@@ -42,7 +42,7 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        serializer = ComponentPostSerializer(data=request.data)
+        serializer = ComponentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -50,7 +50,7 @@ class ComponentViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixin
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = ComponentPostSerializer(instance, data=request.data, partial=False)
+        serializer = ComponentSerializer(instance, data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

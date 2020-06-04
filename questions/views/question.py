@@ -3,8 +3,8 @@ from django.http import Http404
 from rest_framework import status, viewsets, mixins, views
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from questions.serializers import QuestionSerializer, QuestionPostSerializer
-from publishers.serializers import SourceQuestionSerializer
+from questions.serializers import QuestionSerializer
+from publishers.serializers import SourceSerializer
 from questions.models import Question, QuestionExam
 from components.models import ComponentAnswer
 from library.feeds import get_breadcrumb, get_category, send_question_change_message_to_users as send_message
@@ -31,7 +31,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'edu_category'
         ).first()
 
-        serialized_question = QuestionSerializer(queryset)
+        serialized_question = QuestionSerializer(queryset, many=False)
 
         response = serialized_question.data
         response.update(
@@ -62,7 +62,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
             'question_answers'
         ).first()
 
-        serialized_question = QuestionSerializer(queryset)
+        serialized_question = QuestionSerializer(queryset, many=False)
 
         qr = QuestionRepository(question=queryset)
         qr.request = request
@@ -92,7 +92,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
         qr = QuestionRepository(question=queryset)
         qr.request = request
 
-        source = SourceQuestionSerializer(queryset.source_questions, many=True)
+        source = SourceSerializer(queryset.source_questions, many=True, context={'question': True})
 
         answers = []
         for answer in queryset.question_answers.all():
@@ -160,7 +160,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        serializer = QuestionPostSerializer(data=request.data)
+        serializer = QuestionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         question = serializer.save()
         return Response(question, status=status.HTTP_201_CREATED)
@@ -168,7 +168,7 @@ class QuestionViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = QuestionPostSerializer(instance, data=request.data, partial=False)
+        serializer = QuestionSerializer(instance, data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

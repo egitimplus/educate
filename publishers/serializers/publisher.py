@@ -5,7 +5,6 @@ from companies.models import CompanyGroup
 
 class PublisherSerializer(serializers.ModelSerializer):
 
-    group_id = serializers.IntegerField(required=False)
     masters = serializers.ListField(
         default=[],
         required=False,
@@ -13,19 +12,12 @@ class PublisherSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Publisher
-        fields = ('id', 'name', 'slug', 'active', 'group_id', 'masters', 'created', 'updated')
+        fields = ('id', 'name', 'slug', 'active', 'group', 'masters', 'created', 'updated')
         extra_kwargs = {
             'slug': {'read_only': True, 'required': False},
             'active': {'read_only': True, 'required': False},
+            'group': {'required': False},
         }
-
-    def validate_group_id(self, value):
-        group = CompanyGroup.objects.filter(id=value).exists()
-
-        if not group:
-            raise serializers.ValidationError('Seçilen grup bulunamadı.')
-
-        return value
 
     def create(self, validated_data):
         masters = validated_data.pop('masters', None)

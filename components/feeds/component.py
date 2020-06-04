@@ -5,22 +5,19 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class ComponentRepository(TestUniqueMixin, RequestMixin):
-    __stat = None
-    __data = {
-        'sub_components': [],
-        'all_sub_components': [],
-        'parent_components': [],
-        'all_parent_components': [],
-        'data_components': [],
-    }
-    __counts = False
-    __status = False
-    __object = None
-    __request = None
-    __test_unique = None
 
     def __init__(self, **kwargs):
         self.__object = kwargs.pop("component", None)
+        self.__stat = None
+        self.__data = {
+            'sub_components': [],
+            'all_sub_components': [],
+            'parent_components': [],
+            'all_parent_components': [],
+            'data_components': [],
+        }
+        self.__counts = False
+        self.__status = False
 
     # soru parçası bilgileri
     def detail(self):

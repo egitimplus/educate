@@ -31,3 +31,6 @@ class Component(models.Model):
             ("search_component", ""), # ComponentViewSet@search
             ("parents_component", "") # ComponentViewSet@parents
         )
+
+    def __str__(self):
+        return self.name

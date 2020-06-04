@@ -1,10 +1,9 @@
 from companies.feeds import CourseAbstract
 from companies.models import ClassroomLesson
-from curricula.serializers import LearningUnitSerializerWithSubjects
 from components.models import ComponentStat
-from components.serializers import ComponentStatSerializer
+from components.serializers import ComponentStatSerializer, ComponentSerializer
 from curricula.models import LearningUnit, LearningSubject, LearningLectureStat
-from curricula.serializers import LearningSubjectSerializer, LearningLectureStatSerializer
+from curricula.serializers import LearningSubjectSerializer, LearningLectureStatSerializer, LearningUnitSerializer
 from django.db.models import Count
 
 
@@ -17,7 +16,7 @@ class CourseDetailRepository(CourseAbstract):
         queryset = ClassroomLesson.objects.select_related(
             'lesson__lesson__curricula', 'classroom'
         ).prefetch_related(
-            'lesson__lesson__curricula__units__component'
+            'lesson__lesson__curricula__units__subjects__lecture_parent',
         ).filter(classroom=self.__parent.object).all()
 
         response = []
@@ -25,15 +24,35 @@ class CourseDetailRepository(CourseAbstract):
         content = {}
 
         for item in queryset:
-            unit = LearningUnitSerializerWithSubjects(item.lesson.lesson.curricula.units.all(), many=True)
+            unit = LearningUnitSerializer(
+                item.lesson.lesson.curricula.units.all(),
+                many=True,
+                context={
+                    'classroom': self.__parent.object.id,
+                    'publisher': self.__parent.publisher_id,
+                    'request': self.__parent.request,
+                    'test': {},
+                    'component': {},
+                    'subject': {
+                        'stat': True,
+                        'test': {},
+                        'component': {},
+                        'lecture': {
+                            'stat': True,
+                            'practice': True
+                        }
+                    }
+                }
+            )
 
             components = list()
+            component_ids = list()
 
-            for unit_item in item.lesson.lesson.curricula.units.all():
-                unit_components = list(unit_item.component.values_list('id', flat=True))
-                components = components + unit_components
-
-            unique_components = list(set(components))
+            for unit_item in unit.data:
+                for unit_component in unit_item['component']:
+                    if unit_component.id not in component_ids:
+                        components.append(unit_component)
+                        component_ids.append(unit_component.id)
 
             response.append({
                 'id': item.id,
@@ -45,7 +64,7 @@ class CourseDetailRepository(CourseAbstract):
                 'curricula_id': item.lesson.lesson.curricula.id,
                 'curricula_name': item.lesson.lesson.curricula.name,
                 'unit': unit.data,
-                'component': unique_components
+                'component': components
             })
 
         if item:
@@ -64,7 +83,7 @@ class CourseDetailRepository(CourseAbstract):
             'lesson__lesson__curricula__units'
         ).filter(pk=self.__parent.lesson_id).first()
 
-        unit = LearningUnitSerializerWithSubjects(row.lesson.lesson.curricula.units.all(), many=True)
+        unit = LearningUnitSerializer(row.lesson.lesson.curricula.units.all(), many=True)
 
         return {
             'id': row.id,
@@ -78,8 +97,9 @@ class CourseDetailRepository(CourseAbstract):
             'unit': unit.data
         }
 
-    def stat(self):
-        queryset = ClassroomLesson.objects.prefetch_related('lesson__lesson__curricula__units__component').filter(
+    def component_stats(self):
+        return {}
+        queryset = ClassroomLesson.objects.prefetch_related('lesson__lesson__curricula__units').filter(
             classroom=self.__parent.object).all()
 
         e = list()
@@ -89,7 +109,7 @@ class CourseDetailRepository(CourseAbstract):
                 d = list(u.component.values_list('id', flat=True))
                 e = e + d
 
-        components = (list(set(e)))
+        components = list(set(e))
 
         stats = ComponentStat.objects.filter(component__in=components, user=self.__parent.request.user).all()
 
@@ -128,3 +148,16 @@ class CourseDetailRepository(CourseAbstract):
         serializer = LearningLectureStatSerializer(obj, many=False)
 
         return serializer.data
+
+    def lecture_stats(self):
+        queryset = ClassroomLesson.objects.prefetch_related('lesson__lesson__curricula__units__subjects__lecture_parent').filter(
+            classroom=self.__parent.object).all()
+
+        e = list()
+
+        for q in queryset:
+            for u in q.lesson.lesson.curricula.units.all():
+                d = list(u.component.values_list('id', flat=True))
+                e = e + d
+
+        components = list(set(e))

@@ -13,7 +13,7 @@ class LearningDomain(models.Model):
     position = models.PositiveSmallIntegerField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
-    test = GenericRelation('curricula.LearningTest')
+    test = GenericRelation('tests.Test')
 
     class Meta:
         db_table = 'curricula_learning_domain'

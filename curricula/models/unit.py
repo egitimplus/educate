@@ -12,10 +12,9 @@ class LearningUnit(models.Model):
     position = models.PositiveSmallIntegerField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
-    test = GenericRelation('curricula.LearningTest')
+    test = GenericRelation('tests.Test')
     domain = models.ForeignKey('curricula.LearningDomain', on_delete=models.CASCADE)
     lesson = models.ForeignKey('curricula.LearningLesson', related_name='units', related_query_name='unit', on_delete=models.CASCADE)
-    component = models.ManyToManyField('components.Component', related_name='unit_component')
 
     class Meta:
         db_table = 'curricula_learning_unit'

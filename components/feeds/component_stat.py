@@ -3,15 +3,15 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class ComponentStatRepository(TestUniqueMixin, RequestMixin):
-    _true_answer = 0
-    _empty_answer = 0
-    _question = None
 
     def __init__(self, **kwargs):
 
         self._component = kwargs.pop("component", None)
         self._test_unique = self._component.test_unique
         self._request = self._component.request
+        self._true_answer = 0
+        self._empty_answer = 0
+        self._question = None
 
     def add_answer(self, component=None):
 

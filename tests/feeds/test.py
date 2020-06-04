@@ -3,11 +3,10 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class TestRepository(TestUniqueMixin, RequestMixin):
-    __answer = None
-    __object = None
 
     def __init__(self, **kwargs):
         self.__object = kwargs.pop("test", None)
+        self.__answer = None
 
     def create_answer(self):
         self.__answer = TestAnswerRepository(test=self)

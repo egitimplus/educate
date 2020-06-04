@@ -1,1 +1,1 @@
-from .educategory import EduCategorySerializer, EduCategorySimpleSerializer
+from .educategory import EduCategorySerializer

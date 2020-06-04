@@ -18,7 +18,6 @@ class LearningLecture(models.Model):
     updated = models.DateField(auto_now=True)
 
     subject = models.ForeignKey('curricula.LearningSubject', related_name='lecture_parent', on_delete=models.CASCADE)
-    component = models.ManyToManyField('components.Component', related_name='lecture_component')
     tag = models.ManyToManyField('curricula.LearningTag', related_name='lecture_tag')
 
     publisher = models.ForeignKey('publishers.Publisher', related_name='lecture_publisher', on_delete=models.CASCADE)

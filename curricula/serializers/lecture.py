@@ -4,16 +4,10 @@ from .lecture_content import LearningLectureLiveScribeSerializer, LearningLectur
 from generic_relations.relations import GenericRelatedField
 from tests.models import Test
 from .lecture_stat import LearningLectureStatSerializer
-from components.serializers import ComponentUserSerializer
+from components.serializers import ComponentSerializer
 
 
 class LearningLectureSerializer(serializers.ModelSerializer):
-
-    practice = serializers.SerializerMethodField()
-    stat = serializers.SerializerMethodField()
-    subject_id = serializers.IntegerField(required=True)
-    publisher_id = serializers.IntegerField(required=True)
-    component = ComponentUserSerializer(many=True, required=False)
 
     content_object = GenericRelatedField({
         LearningLectureVideo: LearningLectureVideoSerializer(),
@@ -24,11 +18,23 @@ class LearningLectureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LearningLecture
-        fields = ('id', 'name', 'summary', 'content', 'position', 'content_object', 'practice', 'subject_id',
-                  'component', 'publisher_id', 'created', 'updated', 'stat')
+        fields = ('id', 'name', 'summary', 'content', 'position', 'content_object', 'created', 'updated', 'subject', 'publisher')
         extra_kwargs = {
             'slug': {'read_only': True, 'required': False}
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        request = self.context.get("request")
+        stat = self.context.get("stat")
+        if request is not None and stat is not None:
+            if request.user:
+                self.fields['stat'] = serializers.SerializerMethodField()
+
+        practice = self.context.get('practice', None)
+        if practice is not None:
+            self.fields['practice'] = serializers.SerializerMethodField()
 
     def get_practice(self, lecture):
         practice = {}
@@ -51,9 +57,12 @@ class LearningLectureSerializer(serializers.ModelSerializer):
         return practice
 
     def get_stat(self, lecture):
+        request = self.context.get('request')
 
-        request = self.context.get("request")
-        queryset = LearningLectureStat.objects.filter(lecture=lecture, user_id=request.user.id).first()
-        serializer = LearningLectureStatSerializer(queryset, many=False)
+        if request is not None:
+            if request:
+                queryset = LearningLectureStat.objects.filter(user=request.user, lecture=lecture).first()
+                serializer = LearningLectureStatSerializer(queryset, many=False)
+                return serializer.data
 
-        return serializer.data
+        return {}

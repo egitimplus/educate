@@ -1,19 +1,15 @@
 from rest_framework import serializers
-from curricula.models import LearningSubject, LearningUnit, LearningLectureStat
-from .test import LearningTestSerializer
+from curricula.models import LearningSubject, LearningLectureStat
 from .lecture import LearningLectureSerializer
 from .lecture_stat import LearningLectureStatSerializer
-from tests.models import Test
+from components.serializers import ComponentSerializer
+
 
 class LearningSubjectSerializer(serializers.ModelSerializer):
-    unit_id = serializers.IntegerField(required=False)
-    # test = LearningTestSerializer(many=True, required=False)
-    stat = serializers.SerializerMethodField(read_only=True)
-    test = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = LearningSubject
-        fields = ('id', 'name', 'slug', 'content', 'position', 'test', 'unit_id', 'created', 'updated', 'lecture_parent','stat')
+        fields = ('id', 'name', 'slug', 'content', 'position', 'unit', 'created', 'updated')
         extra_kwargs = {
             'slug': {'read_only': True, 'required': False}
         }
@@ -21,20 +17,24 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['lecture_parent'] = LearningLectureSerializer(read_only=True, many=True, context=self.context)
+        request = self.context.get("request")
+        stat = self.context.get("stat")
+        if request is not None and stat is not None:
+            if request.user:
+                self.fields['stat'] = serializers.SerializerMethodField(read_only=True)
 
-    def validate_unit_id(self, value):
-        unit = LearningUnit.objects.filter(id=value).exists()
+        test = self.context.get('test', None)
+        if test is not None:
+            self.fields['test'] = serializers.SerializerMethodField(read_only=True)
 
-        if not unit:
-            raise serializers.ValidationError('Seçilen ünite bulunamadı.')
+        component = self.context.get('component', None)
+        if component is not None:
+            self.fields['component'] = serializers.SerializerMethodField(read_only=True)
 
-        return value
-
-    def create(self, validated_data):
-        subject = LearningSubject.objects.create(**validated_data)
-
-        return subject
+        lecture = self.context.get('lecture', None)
+        if lecture is not None:
+            lecture['request'] = request
+            self.fields['lecture_parent'] = LearningLectureSerializer(read_only=True, many=True, context=lecture)
 
     def update(self, instance, validated_data):
         instance.name = validated_data['name']
@@ -43,40 +43,51 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def get_stat(self, subject):
+    def get_stat(self, instance):
         request = self.context.get("request")
         publisher_id = self.context.get("publisher_id")
 
-        lectures = subject.lecture_parent.filter(publisher_id=publisher_id).all()
-        ids = lectures.values_list('id', flat=True)
+        if request is not None:
+            if request.user:
+                lectures = instance.lecture_parent.filter(publisher_id=publisher_id).all()
+                ids = lectures.values_list('id', flat=True)
 
-        queryset = LearningLectureStat.objects.filter(lecture_id__in=ids, user_id=request.user.id, lecture_status=1).all()
-        serializer = LearningLectureStatSerializer(queryset, many=True, context=self.context)
+                queryset = LearningLectureStat.objects.filter(lecture_id__in=ids, user_id=request.user.id, lecture_status=1).all()
+                serializer = LearningLectureStatSerializer(queryset, many=True, context=self.context)
 
-        return serializer.data
+                return serializer.data
 
-    def get_test(self, subject):
+        return {}
+
+    def get_test(self, instance):
         publisher_id = self.context.get("publisher_id")
 
         # TODO burası acaba sadece o publisher veriyormu kontrol edelim
-        tests = subject.test.filter(test__publisher_id=publisher_id).first()
+        test = instance.test.filter(test__publisher_id=publisher_id).order_by('-id').first()
 
-        test = {}
-
-        if tests:
-            queryset = Test.objects.prefetch_related('questions').filter(id=tests.test.id).first()
-
-            test_result = 0
-
-            result_query = queryset.tests.order_by('-id').first()
-            if result_query:
-                test_result = result_query.test_result
-
-            test = {
-                'id': queryset.id,
-                'name': queryset.name,
-                'question_count': queryset.questions.count(),
-                'test_result': test_result
+        data = {}
+        if test:
+            data = {
+                'id': test.id,
+                'name': test.name,
+                'question_count': test.questions.count(),
             }
 
-        return test
+        return data
+
+    def get_component(self, instance):
+
+        components = list()
+        component_ids = list()
+        classroom = self.context.get("classroom")
+
+        test = instance.test.filter(test__classroom_id=classroom).first()
+
+        for question in test.questions.all():
+            for question_component in question.components.all():
+                if question_component.id not in component_ids:
+                    component = ComponentSerializer(question_component, many=False)
+                    components.append(component.data)
+                    component_ids.append(question_component.id)
+
+        return components

@@ -48,4 +48,5 @@ class School(Company):
 
         super(School, self).save()
 
-
+    def __str__(self):
+        return self.name

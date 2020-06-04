@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 '''
 Test verileri
@@ -20,6 +21,11 @@ class Test(models.Model):
     questions = models.ManyToManyField('questions.Question', through='TestQuestion', related_name='questions')
     categories = models.ManyToManyField('educategories.EduCategory', related_name='categories')
     publisher = models.ForeignKey('publishers.Publisher', related_name='test_publisher', on_delete=models.CASCADE)
+    classroom = models.ManyToManyField('companies.Classroom', related_name='classroom')
+
+    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         default_permissions = ()

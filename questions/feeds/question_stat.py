@@ -3,9 +3,6 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 
 class QuestionStatRepository(TestUniqueMixin, RequestMixin):
-    __question = None
-    __test_unique = None
-    __request = None
 
     def __init__(self, **kwargs):
         self.__question = kwargs.pop("question", None)

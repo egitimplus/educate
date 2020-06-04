@@ -2,11 +2,11 @@ import math
 from django.db import transaction
 from django.http import HttpResponseServerError
 from rest_framework import viewsets, mixins, status
-from tests.models import Test, TestUnique
-from tests.serializers import TestSerializer, TestPostSerializer, SimpleTestSerializer
+from tests.models import Test
+from tests.serializers import TestSerializer, TestPostSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from educategories.serializers import EduCategorySimpleSerializer
+from educategories.serializers import EduCategorySerializer
 from questions.serializers import QuestionSerializer
 from tests.feeds import TestRepository
 
@@ -28,7 +28,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         queryset = Test.objects.prefetch_related('questions', 'categories').filter(id=pk).first()
 
         questions = QuestionSerializer(queryset.questions.order_by('question').all(), many=True)
-        categories = EduCategorySimpleSerializer(queryset.categories.all(), many=True)
+        categories = EduCategorySerializer(queryset.categories.all(), many=True)
 
         response = {
             'id': queryset.id,
@@ -54,7 +54,7 @@ class TestViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         if search_text:
             queryset = queryset.filter(name__icontains=search_text)
 
-        serializer = SimpleTestSerializer(queryset, many=True)
+        serializer = TestSerializer(queryset, many=True)
 
         return Response(serializer.data)
 

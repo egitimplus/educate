@@ -4,17 +4,12 @@ from library.mixins import TestUniqueMixin, RequestMixin
 
 class QuestionUniqueRepository(TestUniqueMixin, RequestMixin):
 
-    __answer_is_true = 0
-    __question = None
-    __test_unique = None
-    __request = None
-    __object = None
-
     def __init__(self, **kwargs):
         self.__question = kwargs.pop("question", None)
         self.__object = kwargs.pop("question_unique", None)
         self.__test_unique = self.__question.test_unique
         self.__request = self.__question.request
+        self.__answer_is_true = 0
 
     def update_stats(self):
         # unique soru istatistiklerini ekleyelim

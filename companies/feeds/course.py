@@ -4,14 +4,13 @@ from companies.feeds import CourseDetailRepository, CourseSimpleRepository
 
 class CourseRepository(RequestMixin):
 
-    __course = None
-    __lecture_id = None
-    __publisher_id = None
-    __unit_id = None
-    __lesson_id = None
-
     def __init__(self, **kwargs):
         self.__object = kwargs.pop("course", None)
+        self.__course = None
+        self.__lecture_id = None
+        self.__publisher_id = None
+        self.__unit_id = None
+        self.__lesson_id = None
 
         if self.__object is not None:
             self.create_repository()
@@ -64,11 +63,14 @@ class CourseRepository(RequestMixin):
     def detail(self):
         return self.__course.detail()
 
-    def stat(self):
-        return self.__course.stat()
-
     def unit(self):
         return self.__course.unit()
 
     def lecture_stat(self):
         return self.__course.lecture_stat()
+
+    def component_stats(self):
+        return self.__course.component_stats()
+
+    def lecture_stats(self):
+        return self.__course.lecture_stats()

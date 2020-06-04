@@ -1,6 +1,6 @@
 from rest_framework import viewsets, mixins, status
 from curricula.models import LearningSubject, LearningLecture
-from curricula.serializers import LearningSubjectSerializer, LearningSubjectSimpleSerializer, LearningLectureSerializer, LearningLectureUserSerializer
+from curricula.serializers import LearningSubjectSerializer, LearningSubjectSimpleSerializer, LearningLectureSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -18,7 +18,7 @@ class LearningSubjectViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, m
         lecture_queryset = LearningLecture.objects.filter(subject=pk).all()
 
         subject = LearningSubjectSerializer(subject_queryset, many=False)
-        lecture = LearningLectureUserSerializer(lecture_queryset, many=True,  context={'request': request})
+        lecture = LearningLectureSerializer(lecture_queryset, many=True,  context={'request': request, 'stat': True})
 
         data = {
             'subject': subject.data,

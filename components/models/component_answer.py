@@ -15,5 +15,3 @@ class ComponentAnswer(models.Model):
             ("view_componentanswer", "View component answer"),
             ("list_componentanswer", "List component answer")
         )
-
-

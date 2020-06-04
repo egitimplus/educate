@@ -1,6 +1,6 @@
 from rest_framework import viewsets, mixins, status
 from curricula.models import LearningUnit, LearningSubject
-from curricula.serializers import LearningSubjectSerializer, LearningUnitSerializer, LearningUnitSimpleSerializer
+from curricula.serializers import LearningSubjectSerializer, LearningUnitSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -39,7 +39,7 @@ class LearningUnitViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
     @action(methods=['GET'], detail=True)
     def view(self, request, pk=None):
         queryset = LearningUnit.objects.filter(id=pk).first()
-        serializer = LearningUnitSimpleSerializer(queryset, many=False)
+        serializer = LearningUnitSerializer(queryset, many=False)
 
         return Response(serializer.data)
 

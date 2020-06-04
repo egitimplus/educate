@@ -46,7 +46,6 @@ class UserViewSet(UserPermissionMixin, mixins.CreateModelMixin, mixins.ListModel
             r_sub = {}
             content_type = user_role.content_type.model
 
-            print(content_type)
             if content_type == 'companygroup' or content_type == 'school':
                 company_id = user_role.object_id
                 company_name = user_role.content_object.name
@@ -61,8 +60,6 @@ class UserViewSet(UserPermissionMixin, mixins.CreateModelMixin, mixins.ListModel
                     'name': user_role.content_object.name
                 }
             elif content_type == 'classroomlesson':
-
-                print(user_role)
 
                 company_id = user_role.content_object.classroom.school.id
                 company_name = user_role.content_object.classroom.school.name

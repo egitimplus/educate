@@ -7,7 +7,7 @@ from educategories.serializers import EduCategorySerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from components.feeds import ComponentRepository
-from tests.serializers import SimpleTestSerializer
+from tests.serializers import TestSerializer
 
 
 class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
@@ -79,5 +79,5 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.U
     def tests(self, request, pk=None):
         queryset = Test.objects.filter(categories__id=pk).all()
 
-        serializer = SimpleTestSerializer(queryset, many=True)
+        serializer = TestSerializer(queryset, many=True, context={'simple': True})
         return Response(serializer.data)

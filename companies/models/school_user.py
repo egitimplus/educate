@@ -13,3 +13,6 @@ class SchoolUser(models.Model):
             ("delete_school_user", 'Detach user from school'),  # SchoolViewSet@detach_user
             ("list_school_users", "List school users"),  # SchoolViewSet@user_list
         )
+
+    def __str__(self):
+        return self.user.first_name + " " + self.user.last_name

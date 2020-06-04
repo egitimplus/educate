@@ -13,3 +13,6 @@ class SchoolManager(models.Model):
             ("delete_school_manager", 'Detach manager from school'),  # SchoolViewSet@detach_manager
             ("list_school_managers","List school managers"),  # SchoolViewSet@manager_list
         )
+
+    def __str__(self):
+        return self.manager.first_name + " " + self.manager.last_name

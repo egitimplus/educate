@@ -12,7 +12,7 @@ class LearningSubject(models.Model):
     position = models.PositiveSmallIntegerField()
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
-    test = GenericRelation('curricula.LearningTest')
+    test = GenericRelation('tests.Test')
     unit = models.ForeignKey('curricula.LearningUnit', related_name='subjects', related_query_name='subject', on_delete=models.CASCADE)
 
     class Meta:

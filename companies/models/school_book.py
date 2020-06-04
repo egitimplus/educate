@@ -7,3 +7,7 @@ class SchoolBook(models.Model):
 
     class Meta:
         db_table = 'companies_school_book'
+
+    def __str__(self):
+        return self.book.name
+

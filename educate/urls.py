@@ -10,17 +10,19 @@ course_lesson = CourseViewSet.as_view({'get': 'course_lesson',})
 course_lecture_stat = CourseViewSet.as_view({'get': 'course_lecture_stat'})
 course_user = CourseViewSet.as_view({'get': 'course_user'})
 course_unit = CourseViewSet.as_view({'get': 'course_unit'})
-course_stat = CourseViewSet.as_view({'get': 'course_stat'})
 course_list = CourseViewSet.as_view({'get': 'list'})
+course_component_stats = CourseViewSet.as_view({'get': 'course_component_stats'})
+course_lecture_stats = CourseViewSet.as_view({'get': 'course_lecture_stats'})
 
 urlpatterns = format_suffix_patterns([
     url(r'^course/$', course_list, name='classroom-list'),
     url(r'^course/user/$', course_user, name='course-user'),
     url(r'^course/(?P<pk>[0-9]+)/$', course, name='course-list'),
-    url(r'^course/(?P<pk>[0-9]+)/stat/$', course_stat, name='course-stat'),
     url(r'^course/(?P<pk>[0-9]+)/unit/$', course_unit, name='course-unit'),
     url(r'^course/(?P<pk>[0-9]+)/lecture/stat/$', course_lecture_stat, name='course-lecture-stat'),
     url(r'^course/(?P<pk>[0-9]+)/lesson/$', course_lesson, name='course-lesson'),
+    url(r'^course/(?P<pk>[0-9]+)/component_stats/$', course_component_stats, name='course-component-stats'),
+    url(r'^course/(?P<pk>[0-9]+)/lecture_stats/$', course_lecture_stats, name='course-lecture-stats'),
 ])
 
 urlpatterns += [

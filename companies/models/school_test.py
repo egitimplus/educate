@@ -12,3 +12,5 @@ class SchoolTest(models.Model):
             ("list_school_tests", "List school tests"),  # SchoolViewSet@test_list
         )
 
+    def __str__(self):
+        return self.teacher.test

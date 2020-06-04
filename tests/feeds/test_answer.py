@@ -11,24 +11,20 @@ from components.models import ComponentStat
 
 class TestAnswerRepository(TestUniqueMixin, RequestMixin):
 
-    __true = 0
-    __false = 0
-    __empty = 0
-    __total = 0
-    __true_components = []
-    __false_components = []
-    __empty_components = []
-    __answers = None
-    __component_stats = None
-    __all_components = None
-    __test = None
-    __test_unique = None
-    __request = None
-
     def __init__(self, **kwargs):
         self.__test = kwargs.pop("test", None)
         self.__test_unique = self.__test.test_unique
         self.__request = self.__test.request
+        self.__true = 0
+        self.__false = 0
+        self.__empty = 0
+        self.__total = 0
+        self.__true_components = []
+        self.__false_components = []
+        self.__empty_components = []
+        self.__answers = None
+        self.__component_stats = None
+        self.__all_components = None
 
     @property
     def answers(self):

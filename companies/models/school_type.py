@@ -6,3 +6,6 @@ class SchoolType(models.Model):
 
     class Meta:
         db_table = 'companies_school_type'
+
+    def __str__(self):
+        return self.name

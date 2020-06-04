@@ -18,3 +18,6 @@ class ClassroomLesson(models.Model):
             ("view_classroom_lesson", "View Classroom Lesson"), # ClassroomViewSet@
             ("list_classroom_lessons", "List Classroom Lesson") # ClassroomViewSet@
         )
+
+    def __str__(self):
+        return self.lesson.name
