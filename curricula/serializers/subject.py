@@ -106,5 +106,4 @@ class LearningSubjectSerializer(serializers.ModelSerializer):
                         components.append(component.data)
                         component_ids.append(question_component.id)
 
-
         return components
